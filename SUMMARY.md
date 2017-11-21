@@ -1,7 +1,11 @@
 # Summary
 
 - [Intro](README.md)
-- [🛠 Tools](tools.md)
+- [ℹ️ General](general.md)
+
+- [🛠 Tools](tools/README.md)
+  - [📥 Samples in](tools/samples-in.md)
+
 - [📜 Responsibilies](responsibilities.md)
 
 - 🗺 Workflow

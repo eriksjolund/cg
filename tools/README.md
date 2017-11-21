@@ -2,11 +2,43 @@
 
 This section will give an overview of different tools and how they fit together.
 
-## Housekeeper 🗂
+There is a landing page with links to web interfaces for apps that provide it. You can reach it on: [clinical.scilifelab.se/apps][portal-apps].
+
+> We are documenting configuration of apps and related services in the private "servers" repo: [Clinical-Genomics/servers][servers].
+
+## cg 🏀
+
+Wrapper app for all integrated services and tools. You integrated with in mainly using:
+
+- **CLI**: on rasta installed as an alias `cg`
+
+- **Web UI**: [Nuxt.js][nuxt]-based service accessed under [clinical.scilifelab.se][portal]
+
+- **Admin UI**: service accessed under [clinical-api.scilifelab.se][clinical-api]
+
+    Also serves as the REST API for the web UI.
+
+The access to the web apps is controlled by the backing database and more specifically the `user` table. It's shared between "internal" and "customer" users. You can add additional users through the **Admin UI** and the **CLI**.
+
+    👨‍💻 cg add user --customer cust000 --admin kenny.billiau@scilifelab.se "Kenny Billiau"
+
+Admin users gain access to the **Admin UI** and elevated access to parts of the **Web UI** and is intended for "internal" users only.
+
+### lims 👩‍🔬
+
+We have a common (Python) interface towards our Clarity LIMS. It's largely built ontop of the _genologics_ package. It has many uses including:
+
+- fetching sample data; LIMS ID, UDFs, reception data, delivery date, capture kit etc.
+- updating sample data
+- sample submission using the `/samples/batch/create` API (not using _genologics_)
+- Excel sheet "orderform" parsing
+
+## Housekeeper 🗂 / KB
 
 Stores and tags important files. It groups files in "bundles" and keeps track of "versions" of those bundles.
 
-**GitHub**: [Clinical-Genomics/housekeeper](https://github.com/Clinical-Genomics/housekeeper)
+- **GitHub**: [Clinical-Genomics/housekeeper](https://github.com/Clinical-Genomics/housekeeper)
+- **Database**: MySQL, `clinical-db:3306/housekeeper2`
 
 It has two main uses:
 
@@ -27,7 +59,7 @@ It has two main uses:
        ⏱ rasta:~/servers/crontab/store-completed.sh
        👨‍💻 cg store analysis CONFIG-PATH
 
-## Trailblazer 🔍 (TB)
+## Trailblazer (TB) 🔍
 
 Wraps MIP analysis pipeline and tracks the analyses in a web interface. Makes it possible to easily start MIP within some specific conventions.
 
@@ -38,6 +70,9 @@ Wraps MIP analysis pipeline and tracks the analyses in a web interface. Makes it
 > There are more conventions enforced on levels above TB, see _cg_.
 >
 > It's generally a good idea to remove the "analysis" folder for a family before starting a new run.
+
+- **Database**: MySQL, `clinical-db:3306/trailblazer2`
+- **GitHub**: [Clinical-Genomics/trailblazer][trailblazer]
 
 There's also a database and web interface for tracking current and historic runs: [trailblazer.scilifelab.se](https://trailblazer.scilifelab.se/). Analyses create logs in different states:
 
@@ -61,43 +96,75 @@ There's also a database and web interface for tracking current and historic runs
 
       👨‍💻 trailblazer cancel ANALYSIS-RUN-ID
 
-## Genotype 🕵️‍♀️
+You access the CLI `trailblazer` on `rasta` as `hiseq.clinical`.
+
+> _Trailblazer_ will try to pick up the email to send errors to from the `$SUDO_USER` environment variable
+
+### Web service
+
+A [Nuxt.js][nuxt]-based web UI and a Flask-based API service is running on `clinical-db`. They're updated by running:
+
+    ✅ clinical-db:~/servers/resources/update-trailblazer.sh
+
+## Genotype 🕵️‍♀️ / CR
 
 Compare sample genotypes and manage deviations that could indicate sample mix-up.
+
+- **Database**: MySQL, `clinical-db:3306/genotype`
+- **GitHub**: [Clinical-Genomics/genotype][genotype]
+- **Method**: _1477: Genotyping concordance testing_
+
+There's a Flask-based web UI running on `clinical-db`. It's updated by running:
+
+    ✅ clinical-db:~/servers/resources/update-genotype.sh
+
+There's also an alias to the _Genotype_ CLI installed on `rasta` for `hiseq.clinical`.
 
 We send all _human_ samples for external genotyping, excluding:
 
 - tumour samples => not straight forward to compare concordance
 - "focused exome" (or other < exome) panels => doesn't cover enough SNPs
 
-## Chanjo 🐼
+## Chanjo 🐼 / MM
 
 Sequencing coverage analysis for clinical purposes. Helps answer the general question of which regions of an exome which is not sufficiently covered.
+
+- **GitHub**: [robinandeer/chanjo](https://github.com/robinandeer/chanjo)
+- **GitHub**: [robinandeer/chanjo-report](https://github.com/robinandeer/chanjo-report)
+- **Database**: MySQL, `clinical-db:3306/chanjo4`
 
 We generate input for _Chanjo_ by running _Sambamba_ with pre-defined quality filters in MIP.
 
     ⚙️ completeness levels: 10, 15, 20, 50, 100
 
-Results are uploaded along with data to other tools. Data is visualized in a set of coverage reports that are available from Scout.
+Results are uploaded along with data to other tools. Data is visualized in a set of coverage reports that are available from _Scout_.
 
-## cg: lims 👩‍🔬
+_Chanjo_ is available as a CLI under the alias `chanjo` on `rasta` for `hiseq.clinical`.
 
-We have a common (Python) interface towards our Clarity LIMS. It's largely built ontop of the _genologics_ package. It has many uses including:
+_Chanjo_ is used as part of MIP to determine sample sex based on coverage across the X and Y chromosomes. You can run that command yourself as:
 
-- fetching sample data; LIMS ID, UDFs, reception data, delivery date, capture kit etc.
-- updating sample data
-- sample submission using the `/samples/batch/create` API (not using _genologics_)
-- Excel sheet "orderform" parsing
+    👨‍💻 chanjo sex BAM-PATH
 
-## LoqusDB 👩‍🏫
+To upload results from _Sambamba_ manually you would run:
+
+    👨‍💻 chanjo load --group FAMILY-ID --group-name FAMILY-NAME --name SAMPLE-NAME COVERAGE-BED-PATH
+
+### Chanjo-Report
+
+_Chanjo-Report_ can produce HTML/PDF coverage reports. This plugin is integrated in _Scout_ and this is the easiest way to access the coverage results for uploaded cases.
+
+## LoqusDB 👩‍🏫 / MM
 
 Observation count database used to store how many times we've seen a variant along with links to the corresponding families they've been called in.
+
+- **GitHub**: [moonso/loqusdb](https://github.com/moonso/loqusdb)
+- **Database**: MongoDB, `clinical-db:27019/loqusdb`
 
 Results are viewable in Scout.
 
 The upload from _cg_ keeps track of which samples have been loaded to avoid adding the same results multiple times.
 
-## Scout 📍
+## Scout 📍 / MM
 
 Web interface to analyze VCFs and collaborate on solving rare diseases.
 
@@ -107,6 +174,10 @@ Web interface to analyze VCFs and collaborate on solving rare diseases.
 
 You can access the site on [scout.scilifelab.se][scout]. I recommend that you use [Robo 3T][robo-3t] for connecting to the MongoDB database.
 
+The service is running on `clinical-db`. It's updated by running:
+
+    ✅ clinical-db:~/servers/resources/update-scout.sh
+
 ### Research variants
 
 Scout separates variants into "clinical" and "research". Only "clinical" (diagnostic) variants are initially loaded. Users can request upload of "research" (_all_) variants directly in _Scout_. When they do, they also confirm that they have relevant consent. This is marked on the case in the database and the additional variants are uploaded automatically.
@@ -115,3 +186,11 @@ Scout separates variants into "clinical" and "research". Only "clinical" (diagno
 
 [scout]: https://scout.scilifelab.se/
 [robo-3t]: https://robomongo.org/
+[nuxt]: https://nuxtjs.org/
+[portal]: https://clinical.scilifelab.se/
+[clinical-api]: https://clinical-api.scilifelab.se/admin/
+[portal-apps]: https://clinical.scilifelab.se/apps
+[servers]: https://github.com/Clinical-Genomics/servers
+[amsystems]: https://jo812.amsystem.com/index.php
+[genotype]: https://github.com/Clinical-Genomics/genotype
+[trailblazer]: https://github.com/Clinical-Genomics/trailblazer
