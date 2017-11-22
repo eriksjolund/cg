@@ -1,4 +1,4 @@
-# Clinical Genomics 🏀
+# Clinical Genomics :basketball:
 
 A clinical sequencing platform under [SciLifeLab][scilife].
 
@@ -6,34 +6,34 @@ This is a general guide to tools and processes used at Clinical Genomics. It's w
 
 ## Team
 
-- [Valtteri Wirta][vwirta] (VW): Facility manager | 🇫🇮
-- [Emma Sernstad][emmser] (ES): Bioinformatician | 🇸🇪 👶
-- [Robin Andeer][robinandeer] (RA): Lead developer, self-appointed designer | 🇸🇪 🛫
-- 👨‍🎤 [Kenny Biliau][ingkebil] (KB): Bioinformatics manager, data-flow master | 🇧🇪
-- [Måns Magnusson][moonso] (MM): Bioinformatician, Scout developer | 🇸🇪
-- [Daniel Backman][b4ckm4n] (DB): Bioinformatician, MIP/pipeline responsible | 🇸🇪
-- [Emilia Ottosson Laakso][Dilea] (EoL): Bioinformatician, LIMS developer | 🇸🇪
-- [Maya Brandi][mayabrandi] (MB): Bioinformatician, lead LIMS developer | 🇸🇪
-- [Chiara Rasi][northwestwitch] (CR): Bioinformatician, variant sharing expert 🇮🇹
-- [Isak Sylvin][sylvinite] (IS): Bioinformatician, microbial developer | 🇸🇪 🆕
-- [Hassan Foroughi][hassanfa] (HfA): Bioinformatician, cancer developer | 🇮🇷 🆕
-- [Javier Lanillos][jlanillos] (JL): Master's thesis student, cancer | 🇪🇸 🛬
-- Patrik | 🇸🇪 🛬
-- Barry Stokman | 🇳🇱 🛬
+- [Valtteri Wirta][vwirta] (VW): Facility manager | :finland:
+- [Emma Sernstad][emmser] (ES): Bioinformatician | :sweden: :baby:
+- [Robin Andeer][robinandeer] (RA): Lead developer, self-appointed designer | :sweden: :flight_departure:
+- [Kenny Biliau][ingkebil] (KB): Bioinformatics manager, data-flow master | :belgium:
+- [Måns Magnusson][moonso] (MM): Bioinformatician, Scout developer | :sweden:
+- [Daniel Backman][b4ckm4n] (DB): Bioinformatician, MIP/pipeline responsible | :sweden:
+- [Emilia Ottosson Laakso][Dilea] (EoL): Bioinformatician, LIMS developer | :sweden:
+- [Maya Brandi][mayabrandi] (MB): Bioinformatician, lead LIMS developer | :sweden:
+- [Chiara Rasi][northwestwitch] (CR): Bioinformatician, variant sharing expert | :it:
+- [Isak Sylvin][sylvinite] (IS): Bioinformatician, microbial developer | :sweden: :new:
+- [Hassan Foroughi][hassanfa] (HfA): Bioinformatician, cancer developer | :iran: :new:
+- Patrik Grenfeldt | :sweden: :flight_arrival:
+- Barry Stokman | :netherlands: :flight_arrival:
+- [Javier Lanillos][jlanillos] (JL): Master's thesis student, cancer | :es: :flight_arrival:
 
 ### Collaborators
 
-- [Henrik Stranneheim][henrikstranneheim] (HS): bioinformatician, lead MIP developer, @CMMS | 🇸🇪
-- [Daniel Nilsson][dnil] (DN): researcher, SV expert, @ClinicalGenetics | 🇸🇪
-- [Jesper Eisfeldt][J35P312] (JE): PhD student, SV deputy, @ClinicalGenetics | 🇸🇪
-- [Anders Jemten][jemten] (AJ): Post doc, MIP developer, @CMMS | 🇸🇪
+- [Henrik Stranneheim][henrikstranneheim] (HS): bioinformatician, lead MIP developer, @CMMS | :sweden:
+- [Daniel Nilsson][dnil] (DN): researcher, SV expert, @ClinicalGenetics | :sweden:
+- [Jesper Eisfeldt][J35P312] (JE): PhD student, SV deputy, @ClinicalGenetics | :sweden:
+- [Anders Jemten][jemten] (AJ): Post doc, MIP developer, @CMMS | :sweden:
 
 ### Thesarus
 
-- 🆕 = new member
-- 🛫 = leaving member
-- 🛬 = incoming member
-- 👶 = maternaty/paternaty leave
+- :new: = new member
+- :flight_departure: = leaving member
+- :flight_arrival: = incoming member
+- :baby: = maternaty/paternaty leave
 
 [scilife]: https://www.scilifelab.se/
 

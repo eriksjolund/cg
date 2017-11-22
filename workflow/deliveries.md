@@ -12,7 +12,7 @@ The upload of completed analyses happens automatically. However, this does not m
 
 During the automatic upload, _Chanjo_ is used to validate quality against a coverage threshold based on the "OMIM-AUTO" gene panel.
 
-    👨‍💻 cg upload validate FAMILY-ID
+    :man_technologist: cg upload validate FAMILY-ID
 
 Before answer out an analysis, it's important to check that the upload is good. You do this by accessing the list of clinical SNVs and making sure that thers's mix of inheritance models represented. There should also be compounds listed for some variants. The rank score for the top variants should not be lower than about 15.
 

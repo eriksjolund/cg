@@ -1,4 +1,4 @@
-# Samples in 📤
+# Samples in :inbox_tray:
 
 One of the most central aspects of our dataflow is how we accept new samples into our system. It's imperative that this is handled in a unified way so that downstream automation can progress smoothly.
 

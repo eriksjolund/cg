@@ -34,15 +34,15 @@ Families where _each_ of the samples have been marked "sequenced" and who haven'
 
 Families with actions other than "analyze" are excluded ("running", "hold" etc.) You can manually set a family to show up in the queue by running:
 
-    👨‍💻 cg set family --action analyze FAMILY-ID
+    :man_technologist: cg set family --action analyze FAMILY-ID
 
 Families are sorted based on priority and date of order.
 
 Analysis for families in this queue are automatically started.
 
-    ⏱ rasta:~/servers/crontab/analysis-auto.sh
-    👨‍💻 cg analysis auto
-    👨‍💻 cg analysis -f FAMILY-ID
+    :stopwatch: rasta:~/servers/crontab/analysis-auto.sh
+    :man_technologist: cg analysis auto
+    :man_technologist: cg analysis -f FAMILY-ID
 
 ## Analyses to upload
 
@@ -50,9 +50,9 @@ Analyses that have successfully completed but haven't yet uploaded.
 
 Analyses in this queue are automatically uploaded.
 
-    ⏱ rasta:~/servers/crontab/upload-auto.sh
-    👨‍💻 cg upload auto
-    👨‍💻 cg upload -f FAMILY-ID
+    :stopwatch: rasta:~/servers/crontab/upload-auto.sh
+    :man_technologist: cg upload auto
+    :man_technologist: cg upload -f FAMILY-ID
 
 ## Analyses to deliver
 

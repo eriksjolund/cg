@@ -11,11 +11,11 @@ Flowcells exist in 4 different states:
 
 Flowcells are automatically set to **requested** when an analysis is automatically started and the system recognises that not all related flowcells are **ondisk**.
 
-    ⏱ rasta:~/servers/crontab/analysis-auto.sh
-    👨‍💻 cg analysis auto
+    :stopwatch: rasta:~/servers/crontab/analysis-auto.sh
+    :man_technologist: cg analysis auto
 
 One person is assigned to retrieve **requested** flowcells. When starting this process, the process should update the status of the flowcell to **processing** in _clinical-api_.
 
 When a flowcell is finished demultiplexing, the flowcell status is automatically updated to **ondisk**. For novel flowcells, a new database record is created with the **ondisk** status. We also update the number of reads each sample on the flowcell has been sequenced. When the target number of reads has been reached, the sample is marked with the sequence date of the latest flowcell for that sample. We also store FASTQ files on a per sample-basis in _Housekeeper_.
 
-    👨‍💻 cg transfer flowcell FLOWCELL-NAME
+    :man_technologist: cg transfer flowcell FLOWCELL-NAME
