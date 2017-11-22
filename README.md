@@ -26,7 +26,7 @@ This is a general guide to tools and processes used at Clinical Genomics. It's w
 - [Henrik Stranneheim][henrikstranneheim] (HS): bioinformatician, lead MIP developer, @CMMS | :sweden:
 - [Daniel Nilsson][dnil] (DN): researcher, SV expert, @ClinicalGenetics | :sweden:
 - [Jesper Eisfeldt][J35P312] (JE): PhD student, SV deputy, @ClinicalGenetics | :sweden:
-- [Anders Jemten][jemten] (AJ): Post doc, MIP developer, @CMMS | :sweden:
+- [Anders Jemt][jemten] (AJ): Post doc, MIP developer, @CMMS | :sweden:
 
 ### Thesarus
 
