@@ -1,4 +1,4 @@
-# Tools :hammer_and_wrench:
+# Tools :hammer:
 
 This section will give an overview of different tools and how they fit together.
 
@@ -20,11 +20,11 @@ Wrapper app for all integrated services and tools. You integrated with in mainly
 
 The access to the web apps is controlled by the backing database and more specifically the `user` table. It's shared between "internal" and "customer" users. You can add additional users through the **Admin UI** and the **CLI**.
 
-    :man_technologist: cg add user --customer cust000 --admin kenny.billiau@scilifelab.se "Kenny Billiau"
+    cg add user --customer cust000 --admin kenny.billiau@scilifelab.se "Kenny Billiau"
 
 Admin users gain access to the **Admin UI** and elevated access to parts of the **Web UI** and is intended for "internal" users only.
 
-### lims :woman_scientist:
+### lims :microscope:
 
 We have a common (Python) interface towards our Clarity LIMS. It's largely built ontop of the _genologics_ package. It has many uses including:
 
@@ -39,7 +39,7 @@ Generate and manage invoices.
 
 Invoices are generated per customer and for a list of samples or pools. All data for samples are stored in _Status_ samples in pools are fetched from LIMS, however, they are still invoiced per pool.
 
-## Housekeeper :file_cabinet: / KB
+## Housekeeper :file_folder: / KB
 
 - **GitHub**: [Clinical-Genomics/housekeeper](https://github.com/Clinical-Genomics/housekeeper)
 - **Database**: MySQL, `clinical-db:3306/housekeeper2`
@@ -52,7 +52,7 @@ It has two main uses:
 
     The bundle collects all FASTQ-files for the sample. Each FASTQ-file is tagged with "fastq" and the name of the flowcell it originated on.
 
-       :man_technologist: cg transfer flowcell FLOWCELL-NAME
+       cg transfer flowcell FLOWCELL-NAME
 
     > The "version" concept is not used for these bundles. Only the initial version is relevant.
 
@@ -62,8 +62,8 @@ It has two main uses:
 
     The version concept is here used to group together results of consecutive analyses of the same family (generally the same samples). The version is identified by the start date of the run.
 
-       :stopwatch: rasta:~/servers/crontab/store-completed.sh
-       :man_technologist: cg store analysis CONFIG-PATH
+       @ rasta:~/servers/crontab/store-completed.sh
+       $ cg store analysis CONFIG-PATH
 
 ## Trailblazer (TB) :mag:
 
@@ -74,7 +74,7 @@ Wraps MIP analysis pipeline and tracks the analyses in a web interface. Makes it
 
 - families are stored in ONE root directory defined in the TB config
 
-      :gear: root: /mnt/hds/proj/bioinfo/families
+      root: /mnt/hds/proj/bioinfo/families
 
 > There are more conventions enforced on levels above TB, see _cg_.
 >
@@ -90,7 +90,7 @@ There's also a database and web interface for tracking current and historic runs
 
     Analyses can fail on many levels but lastly the results are evaluated for QC metrics including coverage and sex predictions. If the analysis only fails for "analysisrunstatus" you can get an overview by running:
 
-      :man_technologist: trailblazer check FAMILY-ID
+      trailblazer check FAMILY-ID
 
 - **completed**: analysis is finished without errors.
 
@@ -100,7 +100,7 @@ There's also a database and web interface for tracking current and historic runs
 
 - **canceled**: analysis in manually canceled from TB. If you for some reason want to halt an analysis you can use the command line which will send cancel-signals to all SLURM jobs that were launched for the analysis.
 
-      :man_technologist: trailblazer cancel ANALYSIS-RUN-ID
+      trailblazer cancel ANALYSIS-RUN-ID
 
 You access the CLI `trailblazer` on `rasta` as `hiseq.clinical`.
 
@@ -110,9 +110,9 @@ You access the CLI `trailblazer` on `rasta` as `hiseq.clinical`.
 
 A [Nuxt.js][nuxt]-based web UI and a Flask-based API service is running on `clinical-db`. They're updated by running:
 
-    :white_check_mark: clinical-db:~/servers/resources/update-trailblazer.sh
+    ~/servers/resources/update-trailblazer.sh
 
-## Genotype :female_detective: / CR
+## Genotype :white_check_mark: / CR
 
 - **GitHub**: [Clinical-Genomics/genotype][genotype]
 - **Method**: _1477: Genotyping concordance testing_
@@ -122,7 +122,7 @@ Compare sample genotypes and manage deviations that could indicate sample mix-up
 
 There's a Flask-based web UI running on `clinical-db`. It's updated by running:
 
-    :white_check_mark: clinical-db:~/servers/resources/update-genotype.sh
+    ~/servers/resources/update-genotype.sh
 
 There's also an alias to the _Genotype_ CLI installed on `rasta` for `hiseq.clinical`.
 
@@ -141,7 +141,7 @@ Sequencing coverage analysis for clinical purposes. Helps answer the general que
 
 We generate input for _Chanjo_ by running _Sambamba_ with pre-defined quality filters in MIP.
 
-    :gear: completeness levels: 10, 15, 20, 50, 100
+    completeness levels: 10, 15, 20, 50, 100
 
 Results are uploaded along with data to other tools. Data is visualized in a set of coverage reports that are available from _Scout_.
 
@@ -149,17 +149,17 @@ _Chanjo_ is available as a CLI under the alias `chanjo` on `rasta` for `hiseq.cl
 
 _Chanjo_ is used as part of MIP to determine sample sex based on coverage across the X and Y chromosomes. You can run that command yourself as:
 
-    :man_technologist: chanjo sex BAM-PATH
+    chanjo sex BAM-PATH
 
 To upload results from _Sambamba_ manually you would run:
 
-    :man_technologist: chanjo load --group FAMILY-ID --group-name FAMILY-NAME --name SAMPLE-NAME COVERAGE-BED-PATH
+    chanjo load --group FAMILY-ID --group-name FAMILY-NAME --name SAMPLE-NAME COVERAGE-BED-PATH
 
 ### Chanjo-Report
 
 _Chanjo-Report_ can produce HTML/PDF coverage reports. This plugin is integrated in _Scout_ and this is the easiest way to access the coverage results for uploaded cases.
 
-## LoqusDB :woman_teacher: / MM
+## LoqusDB :bookmark_tabs: / MM
 
 - **GitHub**: [moonso/loqusdb](https://github.com/moonso/loqusdb)
 - **Database**: MongoDB, `clinical-db:27019/loqusdb`
@@ -182,13 +182,13 @@ You can access the site on [scout.scilifelab.se][scout]. I recommend that you us
 
 The service is running on `clinical-db`. It's updated by running:
 
-    :white_check_mark: clinical-db:~/servers/resources/update-scout.sh
+    ~/servers/resources/update-scout.sh
 
 ### Research variants
 
 Scout separates variants into "clinical" and "research". Only "clinical" (diagnostic) variants are initially loaded. Users can request upload of "research" (_all_) variants directly in _Scout_. When they do, they also confirm that they have relevant consent. This is marked on the case in the database and the additional variants are uploaded automatically.
 
-    :stopwatch: rasta:~/servers/crontab/cron-add-research.sh
+    @ rasta:~/servers/crontab/cron-add-research.sh
 
 [scout]: https://scout.scilifelab.se/
 [robo-3t]: https://robomongo.org/

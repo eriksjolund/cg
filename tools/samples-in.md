@@ -2,6 +2,8 @@
 
 One of the most central aspects of our dataflow is how we accept new samples into our system. It's imperative that this is handled in a unified way so that downstream automation can progress smoothly.
 
+See also [Sample submission](../workflow/submission.md).
+
 ## Inputs
 
 There's multiple ways to input sample information:

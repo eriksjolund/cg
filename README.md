@@ -6,33 +6,33 @@ This is a general guide to tools and processes used at Clinical Genomics. It's w
 
 ## Team
 
-- [Valtteri Wirta][vwirta] (VW): Facility manager | :finland:
-- [Emma Sernstad][emmser] (ES): Bioinformatician | :sweden: :baby:
-- [Robin Andeer][robinandeer] (RA): Lead developer, self-appointed designer | :sweden: :flight_departure:
-- [Kenny Biliau][ingkebil] (KB): Bioinformatics manager, data-flow master | :belgium:
-- [Måns Magnusson][moonso] (MM): Bioinformatician, Scout developer | :sweden:
-- [Daniel Backman][b4ckm4n] (DB): Bioinformatician, MIP/pipeline responsible | :sweden:
-- [Emilia Ottosson Laakso][Dilea] (EoL): Bioinformatician, LIMS developer | :sweden:
-- [Maya Brandi][mayabrandi] (MB): Bioinformatician, lead LIMS developer | :sweden:
+- [Valtteri Wirta][vwirta] (VW): Facility manager | FI
+- [Emma Sernstad][emmser] (ES): Bioinformatician | SE :baby:
+- [Robin Andeer][robinandeer] (RA): Lead developer, self-appointed designer | SE :outbox_tray:
+- [Kenny Biliau][ingkebil] (KB): Bioinformatics manager, data-flow master | BE
+- [Måns Magnusson][moonso] (MM): Bioinformatician, Scout developer | SE
+- [Daniel Backman][b4ckm4n] (DB): Bioinformatician, MIP/pipeline responsible | SE
+- [Emilia Ottosson Laakso][Dilea] (EoL): Bioinformatician, LIMS developer | SE
+- [Maya Brandi][mayabrandi] (MB): Bioinformatician, lead LIMS developer | SE
 - [Chiara Rasi][northwestwitch] (CR): Bioinformatician, variant sharing expert | :it:
-- [Isak Sylvin][sylvinite] (IS): Bioinformatician, microbial developer | :sweden: :new:
-- [Hassan Foroughi][hassanfa] (HfA): Bioinformatician, cancer developer | :iran: :new:
-- Patrik Grenfeldt | :sweden: :flight_arrival:
-- Barry Stokman | :netherlands: :flight_arrival:
-- [Javier Lanillos][jlanillos] (JL): Master's thesis student, cancer | :es: :flight_arrival:
+- [Isak Sylvin][sylvinite] (IS): Bioinformatician, microbial developer | SE :new:
+- [Hassan Foroughi][hassanfa] (HfA): Bioinformatician, cancer developer | IR :new:
+- Patrik Grenfeldt | SE :flight_arrival:
+- Barry Stokman | NE :inbox_tray:
+- [Javier Lanillos][jlanillos] (JL): Master's thesis student, cancer | :es: :inbox_tray:
 
 ### Collaborators
 
-- [Henrik Stranneheim][henrikstranneheim] (HS): bioinformatician, lead MIP developer, @CMMS | :sweden:
-- [Daniel Nilsson][dnil] (DN): researcher, SV expert, @ClinicalGenetics | :sweden:
-- [Jesper Eisfeldt][J35P312] (JE): PhD student, SV deputy, @ClinicalGenetics | :sweden:
-- [Anders Jemt][jemten] (AJ): Post doc, MIP developer, @CMMS | :sweden:
+- [Henrik Stranneheim][henrikstranneheim] (HS): bioinformatician, lead MIP developer, @CMMS | SE
+- [Daniel Nilsson][dnil] (DN): researcher, SV expert, @ClinicalGenetics | SE
+- [Jesper Eisfeldt][J35P312] (JE): PhD student, SV deputy, @ClinicalGenetics | SE
+- [Anders Jemt][jemten] (AJ): Post doc, MIP developer, @CMMS | SE
 
 ### Thesarus
 
 - :new: = new member
-- :flight_departure: = leaving member
-- :flight_arrival: = incoming member
+- :outbox_tray: = leaving member
+- :inbox_tray: = incoming member
 - :baby: = maternaty/paternaty leave
 
 [scilife]: https://www.scilifelab.se/

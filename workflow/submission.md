@@ -32,20 +32,20 @@ It's possible to manually add samples and families to _status_ without interacti
 
 Start by adding the samples, a mother and son for example:
 
-    :man_technologist: cg add sample --sex male --application WGSPCFC030 cust000 Son
-    => happylittlemouse
-    :man_technologist: cg add sample --sex female --application WGSPCFC030 cust000 Mother
-    => prettybighorse
+    $ cg add sample --sex male --application WGSPCFC030 cust000 Son
+    happylittlemouse
+    $ cg add sample --sex female --application WGSPCFC030 cust000 Mother
+    prettybighorse
 
 This will generate a unique "petname" for each sample which we use to reference the samples downstream unless you provide an existing LIMS ID with the `--lims` flag. Next add the family so we can analyze the samples in MIP:
 
-    :man_technologist: cg add family --panel OMIM-AUTO --panel SKD cust000 "Test Run"
+    $ cg add family --panel OMIM-AUTO --panel SKD cust000 "Test Run"
     => sadkoala
 
 This will generate another "petname" used as the family ID. Now we are ready to link the samples to the family.
 
-    :man_technologist: cg add relationship --status unaffected sadkoala prettybighorse
-    :man_technologist: cg add relationship --status affected --mother prettybighorse sadkoala happylittlemouse
+    cg add relationship --status unaffected sadkoala prettybighorse
+    cg add relationship --status affected --mother prettybighorse sadkoala happylittlemouse
 
 We've now created a new family linked to two samples which will be automatically started when all data is available. We've also setup told the system that "prettybighorse" is the mother of "happylittlemouse" which will be taken into account when running the analysis.
 
@@ -53,9 +53,9 @@ We've now created a new family linked to two samples which will be automatically
 
 After sample submission, samples are generally tracked in workflows in LIMS. Some information relating to sample status is automatically synced with _status_.
 
-    :stopwatch: rasta:~/servers/crontab/transfer-lims-received.sh
-    :stopwatch: rasta:~/servers/crontab/transfer-lims-prepared.sh
-    :stopwatch: rasta:~/servers/crontab/transfer-lims-delivered.sh
+    @ rasta:~/servers/crontab/transfer-lims-received.sh
+    @ rasta:~/servers/crontab/transfer-lims-prepared.sh
+    @ rasta:~/servers/crontab/transfer-lims-delivered.sh
 
 Samples that are not added to LIMS workflows can be manually updated by going to the [admin interface][clinical-api].
 

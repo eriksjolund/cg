@@ -1,18 +1,18 @@
 # Summary
 
 - [Intro](README.md)
-- [:information_source: General](general.md)
+- [General](general.md)
 
-- [:hammer_and_wrench: Tools](tools/README.md)
-  - [:inbox_tray: Samples in](tools/samples-in.md)
+- [Tools](tools/README.md)
+  - [Samples in](tools/samples-in.md)
 
-- [:scroll: Responsibilies](responsibilities.md)
+- [Responsibilies](responsibilities.md)
 
-- :world_map: Workflow
+- Workflow
 
-  - [:inbox_tray: Sample submission](workflow/submission.md)
-  - [:newspaper: Sample/analysis queues](workflow/queues.md)
-  - [:memo: Demux](workflow/demux.md)
-  - [:control_knobs: Analyses](workflow/analyses.md)
-  - [:hourglass: Uploads](workflow/uploads.md)
-  - [:package: Deliveries](workflow/deliveries.md)
+  - [Sample submission](workflow/submission.md)
+  - [Sample/analysis queues](workflow/queues.md)
+  - [Demux](workflow/demux.md)
+  - [Analyses](workflow/analyses.md)
+  - [Uploads](workflow/uploads.md)
+  - [Deliveries](workflow/deliveries.md)
