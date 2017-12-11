@@ -9,7 +9,7 @@ This is a general guide to tools and processes used at Clinical Genomics. It's w
 - [Valtteri Wirta][vwirta] (VW): Facility manager | FI
 - [Emma Sernstad][emmser] (ES): Bioinformatician | SE :baby:
 - [Robin Andeer][robinandeer] (RA): Lead developer, self-appointed designer | SE :outbox_tray:
-- [Kenny Biliau][ingkebil] (KB): Bioinformatics manager, data-flow master | BE
+- [Kenny Biliau][ingkebil] (KB): Bioinformatics manager, data-flow master | BE :baby:
 - [Måns Magnusson][moonso] (MM): Bioinformatician, Scout developer | SE
 - [Daniel Backman][b4ckm4n] (DB): Bioinformatician, MIP/pipeline responsible | SE
 - [Emilia Ottosson Laakso][Dilea] (EoL): Bioinformatician, LIMS developer | SE
@@ -17,8 +17,8 @@ This is a general guide to tools and processes used at Clinical Genomics. It's w
 - [Chiara Rasi][northwestwitch] (CR): Bioinformatician, variant sharing expert | :it:
 - [Isak Sylvin][sylvinite] (IS): Bioinformatician, microbial developer | SE :new:
 - [Hassan Foroughi][hassanfa] (HfA): Bioinformatician, cancer developer | IR :new:
-- Patrik Grenfeldt | SE :flight_arrival:
-- Barry Stokman | NE :inbox_tray:
+- Patrik Grenfeldt (PG) | SE :new:
+- [Barry Stokman][barrystokman] (BS): Testing and automation guru | NE :new:
 - [Javier Lanillos][jlanillos] (JL): Master's thesis student, cancer | :es: :inbox_tray:
 
 ### Collaborators
@@ -53,3 +53,4 @@ This is a general guide to tools and processes used at Clinical Genomics. It's w
 [vwirta]: https://github.com/vwirta
 [jlanillos]: https://github.com/jlanillos
 [hassanfa]: https://github.com/hassanfa
+[barrystokman]: https://github.com/barrystokman
