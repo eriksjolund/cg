@@ -8,7 +8,7 @@
 
 - [Responsibilies](responsibilities.md)
 
-- Workflow
+- Sample Workflow
 
   - [Sample submission](workflow/submission.md)
   - [Sample/analysis queues](workflow/queues.md)
@@ -16,3 +16,6 @@
   - [Analyses](workflow/analyses.md)
   - [Uploads](workflow/uploads.md)
   - [Deliveries](workflow/deliveries.md)
+
+- [Development](development/README.md)
+- [New team members](team-members.md)
