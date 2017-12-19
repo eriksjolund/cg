@@ -43,6 +43,16 @@ Here's a list of the essentials:
   - [Mongo Compass][compass] (macOS, free)
 - **VPN client**: for macOS we use [Tunnelblick][tunnelblick] to access our tools and servers remotely.
 
+## Documentation
+
+Tools, workflows, and methods are documented across a few different sources. You can find links to all of them under: [Apps][apps]. When you are looking for something specific consider the following:
+
+- [AM System][amsystem]: official source for all documentation. _All_ method documents are kept here and any information that we share with the lab.
+- [IT Manual][manual]: internal information at a glance. Here you can find workflow overviews that link to more detailed documentation. This guide is geared towards IT/Bioinformatics.
+- [Clinical-Genomics/servers][servers]: this is our _private_ deployment repo were we store and describe the setup of our servers along with secrets and passwords.
+- [Development Guide][development]: General programming conventions and good practises that we are advocating for.
+- _GitHub READMEs_: tool specific information, local development installation, and description of project structure.
+
 [github]: https://github.com/Clinical-Genomics
 [slack]: https://scilifelab.slack.com/
 [sequel]: https://www.sequelpro.com/
@@ -58,3 +68,8 @@ Here's a list of the essentials:
 [tunnelblick]: https://tunnelblick.net/
 [brew]: https://brew.sh/
 [cask]: https://caskroom.github.io/
+[amsystem]: https://jo812.amsystem.com/index.php
+[apps]: https://clinical.scilifelab.se/apps
+[manual]: http://clinical-manual.surge.sh/
+[servers]: https://github.com/Clinical-Genomics/servers
+[development]: http://www.clinicalgenomics.se/development/
