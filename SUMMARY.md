@@ -5,10 +5,11 @@
 
 - [Tools](tools/README.md)
   - [Samples in](tools/samples-in.md)
+  - [Web services](tools/web-services.md)
 
 - [Responsibilies](responsibilities.md)
 
-- Sample Workflow
+- [Sample Workflow](workflow/README.md)
 
   - [Sample submission](workflow/submission.md)
   - [Sample/analysis queues](workflow/queues.md)

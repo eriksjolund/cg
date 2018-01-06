@@ -53,6 +53,10 @@ Tools, workflows, and methods are documented across a few different sources. You
 - [Development Guide][development]: General programming conventions and good practises that we are advocating for.
 - _GitHub READMEs_: tool specific information, local development installation, and description of project structure.
 
+## Local development environment
+
+Please consider the [_Development guide_](development/README.md).
+
 [github]: https://github.com/Clinical-Genomics
 [slack]: https://scilifelab.slack.com/
 [sequel]: https://www.sequelpro.com/
