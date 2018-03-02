@@ -7,23 +7,24 @@ This is a general guide to tools and processes used at Clinical Genomics. It's w
 ## Team
 
 - [Valtteri Wirta][vwirta] (VW): Facility manager | FI
-- [Emma Sernstad][emmser] (ES): Bioinformatician | SE :baby:
+- [Emma Sernstad][emmser] (ES): Bioinformatician | SE
 - [Robin Andeer][robinandeer] (RA): Lead developer, self-appointed designer | SE :outbox_tray:
-- [Kenny Biliau][ingkebil] (KB): Bioinformatics manager, data-flow master | BE :baby:
+- [Kenny Biliau][ingkebil] (KB): Team leader IT infrastructure, data-flow master | BE
 - [Måns Magnusson][moonso] (MM): Bioinformatician, Scout developer | SE
 - [Daniel Backman][b4ckm4n] (DB): Bioinformatician, MIP/pipeline responsible | SE
-- [Emilia Ottosson Laakso][Dilea] (EoL): Bioinformatician, LIMS developer | SE
+- [Emilia Ottosson Laakso][Dilea] (EoL): Production manager | SE
 - [Maya Brandi][mayabrandi] (MB): Bioinformatician, lead LIMS developer | SE
 - [Chiara Rasi][northwestwitch] (CR): Bioinformatician, variant sharing expert | :it:
 - [Isak Sylvin][sylvinite] (IS): Bioinformatician, microbial developer | SE :new:
 - [Hassan Foroughi][hassanfa] (HfA): Bioinformatician, cancer developer | IR :new:
-- Patrik Grenfeldt (PG) | SE :new:
-- [Barry Stokman][barrystokman] (BS): Testing and automation guru | NE :new:
+- Patrik Grenfeldt (PG) Front end expert | SE :new:
+- [Barry Stokman][barrystokman] (BS): Agile coach, developer | NE :new:
 - [Javier Lanillos][jlanillos] (JL): Master's thesis student, cancer | :es: :inbox_tray:
+- [Henrik Stranneheim][henrikstranneheim] (HS): Team leader bioinformatics, lead MIP developer, @CMMS | SE
 
 ### Collaborators
 
-- [Henrik Stranneheim][henrikstranneheim] (HS): bioinformatician, lead MIP developer, @CMMS | SE
+
 - [Daniel Nilsson][dnil] (DN): researcher, SV expert, @ClinicalGenetics | SE
 - [Jesper Eisfeldt][J35P312] (JE): PhD student, SV deputy, @ClinicalGenetics | SE
 - [Anders Jemt][jemten] (AJ): Post doc, MIP developer, @CMMS | SE
