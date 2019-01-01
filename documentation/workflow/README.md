@@ -1,4 +1,4 @@
-# Workflow
+# Sample workflow
 
 These sections describe the flow for human samples from incoming order to delivery in Scout.
 
