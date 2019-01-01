@@ -58,4 +58,3 @@ This command will report sex determination and duplicates for all samples.
 #### Missing FASTQ files
 
 Poor coverage can be caused by missing FASTQ files that weren't linked before analysis start. It could also be a result of certain sample origins, e.g. "saliva" where it's expected to see a higher number of duplicates and mapping to bacterial genome sequences. You can find out the origin of the sample in the "Source" sample UDF in LIMS.
-
