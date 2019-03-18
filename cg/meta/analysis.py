@@ -234,12 +234,15 @@ class AnalysisAPI:
                 data['flowcell'] = f"{data['flowcell']}-{matches[0]}"
             files.append(data)
 
-        self.tb.link(
-            family=link_obj.family.internal_id,
-            sample=link_obj.sample.internal_id,
-            analysis_type=link_obj.sample.application_version.application.analysis_type,
-            files=files,
-        )
+        try:
+            self.tb.link(
+                family=link_obj.family.internal_id,
+                sample=link_obj.sample.internal_id,
+                analysis_type=link_obj.sample.application_version.application.analysis_type,
+                files=files,
+            )
+        except PermissionError as error:
+            self.LOG.warning("Permission denied: %s", error.message)
 
         # Decision for linking in Balsamic structure if data_analysis contains Balsamic
         if link_obj.sample.data_analysis and 'balsamic' in link_obj.sample.data_analysis.lower():
