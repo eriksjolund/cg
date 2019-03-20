@@ -26,6 +26,7 @@ AM_METHODS = {
     '1314': 'Automated SureSelect XT Target Enrichment for Illumina sequencing',
     '1518': '200 ng input Manual SureSelect XT Target Enrichment',
     '1079': 'Manuel SureSelect XT Target Enrichment for Illumina sequencing',
+    '1830': 'NovaSeq 6000 Sequencing method',
 }
 log = logging.getLogger(__name__)
 
@@ -223,6 +224,7 @@ class LimsAPI(Lims, OrderHandler):
             'CG002 - End repair Size selection A-tailing and Adapter ligation (TruSeq PCR-free '
             'DNA)',
             'CG002 - Hybridize Library  (SS XT)',
+            'Aliquot samples for enzymatic fragmentation TWIST',
         ]
         method_name = method_number = None
         for process_name in process_names:
@@ -232,7 +234,8 @@ class LimsAPI(Lims, OrderHandler):
                 method_number = prep_artifact.parent_process.udf.get('Method document')
                 method_version = (
                         prep_artifact.parent_process.udf.get('Method document version') or
-                        prep_artifact.parent_process.udf.get('Method document versio')
+                        prep_artifact.parent_process.udf.get('Method document versio') or
+                        prep_artifact.parent_process.udf.get('Method Document Version')
                 )
                 break
 
