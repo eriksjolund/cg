@@ -8,7 +8,7 @@ import click
 from cg.apps import hk, tb, scoutapi, lims
 from cg.apps.balsamic.fastq import FastqHandler
 from cg.exc import LimsDataError
-from cg.meta.analysis import AnalysisAPI
+from cg.meta.mip_analysis_api import MipAnalysisAPI
 from cg.meta.deliver.api import DeliverAPI
 from cg.store import Store
 
@@ -24,16 +24,16 @@ START_WITH_PROGRAM = click.option('-sw', '--start-with', help='start mip from th
 @START_WITH_PROGRAM
 @click.option('-f', '--family', 'family_id', help='family to prepare and start an analysis for')
 @click.pass_context
-def analysis(context, priority, email, family_id, start_with):
+def mip_analysis(context, priority, email, family_id, start_with):
     """Prepare and start a MIP analysis for a FAMILY_ID."""
     context.obj['db'] = Store(context.obj['database'])
     hk_api = hk.HousekeeperAPI(context.obj)
     scout_api = scoutapi.ScoutAPI(context.obj)
     lims_api = lims.LimsAPI(context.obj)
-    context.obj['tb'] = tb.TrailblazerAPI(context.obj)
+    context.obj['tb'] = tb.MipTrailblazerAPI(context.obj)
     deliver = DeliverAPI(context.obj, hk_api=hk_api, lims_api=lims_api)
     balsamic = FastqHandler(context.obj)
-    context.obj['api'] = AnalysisAPI(
+    context.obj['api'] = MipAnalysisAPI(
         db=context.obj['db'],
         hk_api=hk_api,
         tb_api=context.obj['tb'],
@@ -60,18 +60,18 @@ def analysis(context, priority, email, family_id, start_with):
             context.obj['db'].commit()
         else:
             # execute the analysis!
-            context.invoke(config, family_id=family_id)
-            context.invoke(link, family_id=family_id)
-            context.invoke(panel, family_id=family_id)
-            context.invoke(start, family_id=family_id, priority=priority, email=email,
+            context.invoke(mip_config, family_id=family_id)
+            context.invoke(mip_link, family_id=family_id)
+            context.invoke(mip_panel, family_id=family_id)
+            context.invoke(mip_start, family_id=family_id, priority=priority, email=email,
                            start_with=start_with)
 
 
-@analysis.command()
+@mip_analysis.command()
 @click.option('-d', '--dry', is_flag=True, help='print config to console')
 @click.argument('family_id')
 @click.pass_context
-def config(context, dry, family_id):
+def mip_config(context, dry, family_id):
     """Generate a config for the FAMILY_ID.
 
     Args:
@@ -95,11 +95,11 @@ def config(context, dry, family_id):
         LOG.info(f"saved config to: {out_path}")
 
 
-@analysis.command()
+@mip_analysis.command()
 @click.option('-f', '--family', 'family_id', help='link all samples for a family')
 @click.argument('sample_id', required=False)
 @click.pass_context
-def link(context, family_id, sample_id):
+def mip_link(context, family_id, sample_id):
     """Link FASTQ files for a SAMPLE_ID."""
     if family_id and (sample_id is None):
         # link all samples in a family
@@ -121,11 +121,11 @@ def link(context, family_id, sample_id):
         context.obj['api'].link_sample(link_obj)
 
 
-@analysis.command()
+@mip_analysis.command()
 @click.option('-p', '--print', 'print_output', is_flag=True, help='print to console')
 @click.argument('family_id')
 @click.pass_context
-def panel(context, print_output, family_id):
+def mip_panel(context, print_output, family_id):
     """Write aggregated gene panel file."""
     family_obj = context.obj['db'].family(family_id)
     bed_lines = context.obj['api'].panel(family_obj)
@@ -136,14 +136,14 @@ def panel(context, print_output, family_id):
         context.obj['tb'].write_panel(family_id, bed_lines)
 
 
-@analysis.command()
+@mip_analysis.command()
 @PRIORITY_OPTION
 @EMAIL_OPTION
 @START_WITH_PROGRAM
 @click.argument('family_id')
 @click.pass_context
-def start(context: click.Context, family_id: str, priority: str = None, email: str = None,
-          start_with: str = None):
+def mip_start(context: click.Context, family_id: str, priority: str = None, email: str = None,
+              start_with: str = None):
     """Start the analysis pipeline for a family."""
     family_obj = context.obj['db'].family(family_id)
     if family_obj is None:
@@ -155,9 +155,9 @@ def start(context: click.Context, family_id: str, priority: str = None, email: s
         context.obj['api'].start(family_obj, priority=priority, email=email, start_with=start_with)
 
 
-@analysis.command()
+@mip_analysis.command()
 @click.pass_context
-def auto(context: click.Context):
+def mip_auto(context: click.Context):
     """Start all analyses that are ready for analysis."""
     exit_code = 0
     for family_obj in context.obj['db'].families_to_mip_analyze():
@@ -165,7 +165,7 @@ def auto(context: click.Context):
         priority = ('high' if family_obj.high_priority else
                     ('low' if family_obj.low_priority else 'normal'))
         try:
-            context.invoke(analysis, priority=priority, family_id=family_obj.internal_id)
+            context.invoke(mip_analysis, priority=priority, family_id=family_obj.internal_id)
         except tb.MipStartError as error:
             LOG.exception(error.message)
             exit_code = 1
@@ -174,15 +174,3 @@ def auto(context: click.Context):
             exit_code = 1
 
     sys.exit(exit_code)
-
-
-@analysis.command()
-@click.option('-f', '--family', 'family_id', help='remove fastq folder for a case')
-@click.pass_context
-def remove_fastq(context, family_id):
-    """remove fastq folder"""
-
-    wrk_dir = Path(f"{context.obj['balsamic']['root']}/{family_id}/fastq")
-
-    if wrk_dir.exists():
-        shutil.rmtree(wrk_dir)

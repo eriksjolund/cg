@@ -1,8 +1,8 @@
 from cg.store import Store
-from cg.meta.analysis import AnalysisAPI
+from cg.meta.mip_analysis_api import MipAnalysisAPI
 
 
-def test_config(analysis_store: Store, analysis_api: AnalysisAPI):
+def test_config(analysis_store: Store, analysis_api: MipAnalysisAPI):
 
     # GIVEN a status db with a family
     family_obj = analysis_store.families().first()
@@ -15,7 +15,7 @@ def test_config(analysis_store: Store, analysis_api: AnalysisAPI):
     assert len(mip_config['samples']) == len(family_obj.links)
 
 
-def test_get_latest_data_genome_build(analysis_api: AnalysisAPI):
+def test_get_latest_data_genome_build(analysis_api: MipAnalysisAPI):
 
     # GIVEN
     family_id = 'dummy_family_id'
@@ -27,7 +27,7 @@ def test_get_latest_data_genome_build(analysis_api: AnalysisAPI):
     assert trending_data['genome_build']
 
 
-def test_get_latest_data_rank_model_version(analysis_api: AnalysisAPI):
+def test_get_latest_data_rank_model_version(analysis_api: MipAnalysisAPI):
     # GIVEN
     family_id = 'dummy_family_id'
 
@@ -38,7 +38,7 @@ def test_get_latest_data_rank_model_version(analysis_api: AnalysisAPI):
     assert trending_data['rank_model_version']
 
 
-def test_get_latest_metadata_logging(analysis_api: AnalysisAPI):
+def test_get_latest_metadata_logging(analysis_api: MipAnalysisAPI):
     # GIVEN an initialised report_api and the deliver_api does not have what we want
     analysis_api.tb._get_trending_raises_keyerror = True
 

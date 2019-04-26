@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from cg.apps.tb.add import AddHandler
+from cg.apps.tb.mip_add import AddHandler
 
 
 def test_get_files(files_data) -> dict:

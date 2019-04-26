@@ -12,7 +12,7 @@ LOG = logging.getLogger(__name__)
 
 class UploadGenotypesAPI(object):
 
-    def __init__(self, status_api: Store, hk_api: hk.HousekeeperAPI, tb_api: tb.TrailblazerAPI,
+    def __init__(self, status_api: Store, hk_api: hk.HousekeeperAPI, tb_api: tb.MipTrailblazerAPI,
                  gt_api: gt.GenotypeAPI):
         self.status = status_api
         self.hk = hk_api

@@ -8,7 +8,7 @@ import ruamel.yaml
 import cg
 from cg.store import Store
 
-from .analysis import analysis
+from .mip_analysis import mip_analysis
 from .store import store
 from .add import add
 from .get import get
@@ -63,7 +63,7 @@ def init(context, reset, force):
 
 
 base.add_command(add)
-base.add_command(analysis)
+base.add_command(mip_analysis)
 base.add_command(backup)
 base.add_command(clean)
 base.add_command(deliver)

@@ -104,6 +104,44 @@ class StatusHandler:
 
         return families[:limit]
 
+    def cases_to_balsamic_analyze(self, limit: int = 50):
+        """Fetch families without analyses where all samples are sequenced."""
+
+        # there are two cases when a sample should be analysed:
+        families_q = (
+            self.Family.query
+            .outerjoin(models.Analysis)
+            .join(models.Family.links, models.FamilySample.sample)
+            # the samples must external or be sequenced to be analysed
+            .filter(
+                or_(
+                    models.Sample.is_external,
+                    models.Sample.sequenced_at.isnot(None),
+                )
+            )
+            # The data_analysis is Balsamic
+            .filter(
+                'Balsamic' in models.Sample.data_analysis
+            )
+            # 1. family that has been analysed but now is requested for re-analysing
+            # 2. new family with that haven't been analysed
+            .filter(
+                or_(
+                    models.Family.action == 'analyze',
+                    and_(
+                        models.Family.action.is_(None),
+                        models.Analysis.created_at.is_(None),
+                    ),
+                )
+            )
+            .order_by(models.Family.priority.desc(), models.Family.ordered_at)
+        )
+
+        families = [record for record in families_q if self._all_samples_have_sequence_data(
+            record.links)]
+
+        return families[:limit]
+
     def cases(self,
               internal_id=None,
               name=None,

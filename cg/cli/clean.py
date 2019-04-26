@@ -20,7 +20,7 @@ LOG = logging.getLogger(__name__)
 def clean(context):
     """Remove stuff."""
     context.obj['db'] = Store(context.obj['database'])
-    context.obj['tb'] = tb.TrailblazerAPI(context.obj)
+    context.obj['tb'] = tb.MipTrailblazerAPI(context.obj)
     context.obj['hk'] = hk.HousekeeperAPI(context.obj)
     context.obj['scout'] = scoutapi.ScoutAPI(context.obj)
     context.obj['beacon'] = beacon_app.BeaconApi(context.obj)

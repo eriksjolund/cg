@@ -29,12 +29,12 @@ CAPTUREKIT_MAP = {'Agilent Sureselect CRE': 'agilent_sureselect_cre.v1',
                   'other': 'agilent_sureselect_cre.v1'}
 
 
-class AnalysisAPI:
+class BalsamicAnalysisAPI:
     """The pipelines are accessed through Trailblazer but cg provides additional conventions and
     hooks into the status database that makes managing analyses simpler"""
 
     def __init__(self, db: Store, hk_api: hk.HousekeeperAPI, scout_api: scoutapi.ScoutAPI,
-                 tb_api: tb.TrailblazerAPI, lims_api: lims.LimsAPI, deliver_api: DeliverAPI,
+                 tb_api: tb.BalsamicTrailblazerAPI, lims_api: lims.LimsAPI, deliver_api: DeliverAPI,
                  fastq_handler=fastq.FastqHandler, yaml_loader=safe_load, path_api=Path,
                  logger=logging.getLogger(
                      __name__)):
@@ -49,9 +49,9 @@ class AnalysisAPI:
         self.LOG = logger
         self.balsamic_fastq_handler = fastq_handler
 
-    def check(self, family_obj: models.Family):
+    def check(self, case_obj: models.Family):
         """Check stuff before starting the analysis."""
-        flowcells = self.db.flowcells(family=family_obj)
+        flowcells = self.db.flowcells(family=case_obj)
         statuses = []
         for flowcell_obj in flowcells:
             self.LOG.debug(f"{flowcell_obj.name}: checking flowcell")
@@ -63,18 +63,18 @@ class AnalysisAPI:
                 self.LOG.warning(f"{flowcell_obj.name}: {flowcell_obj.status}")
         return all(status == 'ondisk' for status in statuses)
 
-    def start(self, family_obj: models.Family, **kwargs):
+    def start(self, case_obj: models.Family, **kwargs):
         """Start the analysis."""
         if kwargs.get('priority') is None:
-            if family_obj.priority == 0:
+            if case_obj.priority == 0:
                 kwargs['priority'] = 'low'
-            elif family_obj.priority > 1:
+            elif case_obj.priority > 1:
                 kwargs['priority'] = 'high'
             else:
                 kwargs['priority'] = 'normal'
 
-        # skip MIP evaluation of QC criteria if any sample is downsampled/external
-        for link_obj in family_obj.links:
+        # skip Balsamic evaluation of QC criteria if any sample is downsampled/external
+        for link_obj in case_obj.links:
             downsampled = isinstance(link_obj.sample.downsampled_to, int)
             external = link_obj.sample.application_version.application.is_external
             if downsampled or external:
@@ -83,37 +83,37 @@ class AnalysisAPI:
                 kwargs['skip_evaluation'] = True
                 break
 
-        self.tb.start(family_obj.internal_id, **kwargs)
-        # mark the family as running
-        family_obj.action = 'running'
+        self.tb.start(case_obj.internal_id, **kwargs)
+        # mark the case as running
+        case_obj.action = 'running'
         self.db.commit()
 
-    def config(self, family_obj: models.Family) -> dict:
-        """Make the MIP config. Meta data for the family is taken from the family object
-        and converted to MIP format via trailblazer.
+    def config(self, case_obj: models.Family) -> dict:
+        """Make the Balsamic config. Meta data for the case is taken from the case object
+        and converted to Balsamic format via trailblazer.
 
         Args:
-            family_obj (models.Family):
+            case_obj (models.Family):
 
         Returns:
-            dict: config_data (MIP format)
+            dict: config_data (Balsamic format)
         """
-        # Fetch data for creating a MIP config file
-        data = self.build_config(family_obj)
+        # Fetch data for creating a Balsamic config file
+        data = self.build_config(case_obj)
 
-        # Validate and reformat to MIP config format
+        # Validate and reformat to Balsamic config format
         config_data = self.tb.make_config(data)
 
         return config_data
 
-    def build_config(self, family_obj: models.Family) -> dict:
-        """Fetch data for creating a MIP config file."""
+    def build_config(self, case_obj: models.Family) -> dict:
+        """Fetch data for creating a Balsamic config file."""
         data = {
-            'family': family_obj.internal_id,
-            'default_gene_panels': family_obj.panels,
+            'case': case_obj.internal_id,
+            'default_gene_panels': case_obj.panels,
             'samples': [],
         }
-        for link in family_obj.links:
+        for link in case_obj.links:
             sample_data = {
                 'sample_id': link.sample.internal_id,
                 'analysis_type': link.sample.application_version.application.analysis_type,
@@ -124,8 +124,8 @@ class AnalysisAPI:
             if sample_data['analysis_type'] in ('tgs', 'wes'):
                 if link.sample.capture_kit:
                     # set the capture kit from status: key or custom file name
-                    mip_capturekit = CAPTUREKIT_MAP.get(link.sample.capture_kit)
-                    sample_data['capture_kit'] = mip_capturekit or link.sample.capture_kit
+                    balsamic_capturekit = CAPTUREKIT_MAP.get(link.sample.capture_kit)
+                    sample_data['capture_kit'] = balsamic_capturekit or link.sample.capture_kit
                 else:
                     if link.sample.downsampled_to:
                         self.LOG.debug(f"{link.sample.name}: downsampled sample, skipping")
@@ -234,21 +234,14 @@ class AnalysisAPI:
                 data['flowcell'] = f"{data['flowcell']}-{matches[0]}"
             files.append(data)
 
-        self.tb.link(
-            family=link_obj.family.internal_id,
-            sample=link_obj.sample.internal_id,
-            analysis_type=link_obj.sample.application_version.application.analysis_type,
-            files=files,
-        )
-
         # Decision for linking in Balsamic structure if data_analysis contains Balsamic
         if link_obj.sample.data_analysis and 'balsamic' in link_obj.sample.data_analysis.lower():
-            self.balsamic_fastq_handler.link(family=link_obj.family.internal_id,
+            self.balsamic_fastq_handler.link(case=link_obj.family.internal_id,
                                              sample=link_obj.sample.internal_id, files=files)
 
-    def panel(self, family_obj: models.Family) -> List[str]:
+    def panel(self, case_obj: models.Family) -> List[str]:
         """Create the aggregated panel file."""
-        all_panels = self.convert_panels(family_obj.customer.internal_id, family_obj.panels)
+        all_panels = self.convert_panels(case_obj.customer.internal_id, case_obj.panels)
         bed_lines = self.scout.export_panels(all_panels)
         return bed_lines
 
@@ -274,16 +267,16 @@ class AnalysisAPI:
 
         return list(all_panels)
 
-    def _get_latest_raw_file(self, family_id: str, tag: str) -> Any:
-        """Get a python object file for a tag and a family ."""
+    def _get_latest_raw_file(self, case_id: str, tag: str) -> Any:
+        """Get a python object file for a tag and a case ."""
 
-        analysis_files = self.deliver.get_post_analysis_files(family=family_id,
+        analysis_files = self.deliver.get_post_analysis_files(family=case_id,
                                                               version=False, tags=[tag])
         if analysis_files:
             analysis_file_raw = self._open_bundle_file(analysis_files[0].path)
         else:
             raise self.LOG.warning(
-                f'No post analysis files received from DeliverAPI for \'{family_id}\'')
+                f'No post analysis files received from DeliverAPI for \'{case_id}\'')
 
         return analysis_file_raw
 
@@ -295,24 +288,24 @@ class AnalysisAPI:
         open_file = self.yaml_loader(self.pather(full_file_path).open())
         return open_file
 
-    def get_latest_metadata(self, family_id: str) -> dict:
-        """Get the latest trending data for a family."""
+    def get_latest_metadata(self, case_id: str) -> dict:
+        """Get the latest trending data for a case."""
 
-        mip_config_raw = self._get_latest_raw_file(family_id=family_id, tag='mip-config')
+        balsamic_config_raw = self._get_latest_raw_file(case_id=case_id, tag='balsamic-config')
 
-        qcmetrics_raw = self._get_latest_raw_file(family_id=family_id, tag='qcmetrics')
+        qcmetrics_raw = self._get_latest_raw_file(case_id=case_id, tag='qcmetrics')
 
-        sampleinfo_raw = self._get_latest_raw_file(family_id=family_id, tag='sampleinfo')
+        sampleinfo_raw = self._get_latest_raw_file(case_id=case_id, tag='sampleinfo')
 
         trending = dict()
 
-        if mip_config_raw and qcmetrics_raw and sampleinfo_raw:
+        if balsamic_config_raw and qcmetrics_raw and sampleinfo_raw:
             try:
-                trending = self.tb.get_trending(mip_config_raw=mip_config_raw,
+                trending = self.tb.get_trending(balsamic_config_raw=balsamic_config_raw,
                                                 qcmetrics_raw=qcmetrics_raw,
                                                 sampleinfo_raw=sampleinfo_raw)
             except KeyError as error:
-                self.LOG.warning(f'get_latest_metadata failed for \'{family_id}\''
+                self.LOG.warning(f'get_latest_metadata failed for \'{case_id}\''
                                  f', missing key: {error.args[0]} ')
                 import traceback
                 self.LOG.warning(traceback.format_exc())

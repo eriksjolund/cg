@@ -17,7 +17,7 @@ LOG = logging.getLogger(__name__)
 def store(context):
     """Store results from MIP in housekeeper."""
     context.obj['db'] = Store(context.obj['database'])
-    context.obj['tb_api'] = tb.TrailblazerAPI(context.obj)
+    context.obj['tb_api'] = tb.MipTrailblazerAPI(context.obj)
     context.obj['hk_api'] = hk.HousekeeperAPI(context.obj)
 
 

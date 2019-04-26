@@ -15,7 +15,7 @@ from cg.meta.upload.gt import UploadGenotypesAPI
 from cg.meta.upload.observations import UploadObservationsAPI
 from cg.meta.upload.scoutapi import UploadScoutAPI
 from cg.meta.upload.beacon import UploadBeaconApi
-from cg.meta.analysis import AnalysisAPI
+from cg.meta.mip_analysis_api import MipAnalysisAPI
 from cg.meta.deliver.api import DeliverAPI
 from cg.meta.report.api import ReportAPI
 
@@ -34,17 +34,17 @@ def upload(context, family_id):
     context.obj['housekeeper_api'] = hk.HousekeeperAPI(context.obj)
 
     context.obj['lims_api'] = lims.LimsAPI(context.obj)
-    context.obj['tb_api'] = tb.TrailblazerAPI(context.obj)
+    context.obj['tb_api'] = tb.MipTrailblazerAPI(context.obj)
     context.obj['chanjo_api'] = coverage_app.ChanjoAPI(context.obj)
     context.obj['deliver_api'] = DeliverAPI(context.obj, hk_api=context.obj['housekeeper_api'],
                                             lims_api=context.obj['lims_api'])
     context.obj['scout_api'] = scoutapi.ScoutAPI(context.obj)
-    context.obj['analysis_api'] = AnalysisAPI(context.obj, hk_api=context.obj['housekeeper_api'],
-                                              scout_api=context.obj['scout_api'],
-                                              tb_api=context.obj[
+    context.obj['analysis_api'] = MipAnalysisAPI(context.obj, hk_api=context.obj['housekeeper_api'],
+                                                 scout_api=context.obj['scout_api'],
+                                                 tb_api=context.obj[
                                                   'tb_api'],
-                                              lims_api=context.obj['lims_api'],
-                                              deliver_api=context.obj['deliver_api'])
+                                                 lims_api=context.obj['lims_api'],
+                                                 deliver_api=context.obj['deliver_api'])
     context.obj['report_api'] = ReportAPI(
         db=context.obj['status'],
         lims_api=context.obj['lims_api'],
@@ -234,7 +234,7 @@ def genotypes(context, re_upload, family_id):
 
     click.echo(click.style('----------------- GENOTYPES -------------------'))
 
-    tb_api = tb.TrailblazerAPI(context.obj)
+    tb_api = tb.MipTrailblazerAPI(context.obj)
     gt_api = gt.GenotypeAPI(context.obj)
     family_obj = context.obj['status'].family(family_id)
     api = UploadGenotypesAPI(context.obj['status'], context.obj['housekeeper_api'], tb_api, gt_api)

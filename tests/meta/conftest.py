@@ -3,8 +3,8 @@ from _pytest import tmpdir
 from cg.apps.balsamic.fastq import FastqHandler
 
 from cg.apps.hk import HousekeeperAPI
-from cg.apps.tb import TrailblazerAPI
-from cg.meta.analysis import AnalysisAPI
+from cg.apps.tb import MipTrailblazerAPI
+from cg.meta.mip_analysis_api import MipAnalysisAPI
 
 
 @pytest.yield_fixture(scope='function')
@@ -17,7 +17,7 @@ def scout_store():
 def trailblazer_api(tmpdir):
     """Setup Trailblazer api."""
     root_path = tmpdir.mkdir('families')
-    _store = TrailblazerAPI({'trailblazer': {'database': 'sqlite://', 'root': str(root_path),
+    _store = MipTrailblazerAPI({'trailblazer': {'database': 'sqlite://', 'root': str(root_path),
                                              'script': '.', 'mip_config': '.'}})
     _store.create_all()
     yield _store
@@ -219,7 +219,7 @@ def analysis_api(analysis_store, store_housekeeper, scout_store):
     Path_mock = MockPath('')
     tb_mock = MockTB()
 
-    _analysis_api = AnalysisAPI(
+    _analysis_api = MipAnalysisAPI(
         db=analysis_store,
         hk_api=store_housekeeper,
         scout_api=scout_store,

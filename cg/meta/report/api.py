@@ -11,7 +11,7 @@ from pathlib import Path
 from cg.apps.coverage import ChanjoAPI
 from cg.apps.lims import LimsAPI
 from cg.store import Store, models
-from cg.meta.analysis import AnalysisAPI
+from cg.meta.mip_analysis_api import MipAnalysisAPI
 from cg.meta.report.presenter import Presenter
 from cg.meta.report.sample_calculator import SampleCalculator
 from cg.apps.scoutapi import ScoutAPI
@@ -20,7 +20,7 @@ from cg.apps.scoutapi import ScoutAPI
 class ReportAPI:
 
     def __init__(self, db: Store, lims_api: LimsAPI, chanjo_api: ChanjoAPI, analysis_api:
-                 AnalysisAPI, scout_api: ScoutAPI, logger=logging.getLogger(__name__),
+                 MipAnalysisAPI, scout_api: ScoutAPI, logger=logging.getLogger(__name__),
                  yaml_loader=ruamel.yaml, path_tool=Path):
 
         self.db = db

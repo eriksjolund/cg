@@ -12,18 +12,18 @@ from trailblazer.store import Store, models
 from trailblazer.cli.utils import environ_email
 from trailblazer.mip import files, fastq, trending
 
-from .add import AddHandler
+from .mip_add import AddHandler
 
 log = logging.getLogger(__name__)
 
 
-class TrailblazerAPI(Store, AddHandler, fastq.FastqHandler):
+class MipTrailblazerAPI(Store, AddHandler, fastq.FastqHandler):
     """Interface to Trailblazer for `cg`."""
 
     parse_sampleinfo = staticmethod(files.parse_sampleinfo)
 
     def __init__(self, config: dict):
-        super(TrailblazerAPI, self).__init__(
+        super(MipTrailblazerAPI, self).__init__(
             config['trailblazer']['database'],
             families_dir=config['trailblazer']['root'],
         )
