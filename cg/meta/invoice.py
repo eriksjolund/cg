@@ -66,8 +66,6 @@ class InvoiceAPI():
         priority = 'research' if self.record_type == 'Pool' else record.priority_human
 
         full_price = getattr(record.application_version, f"price_{priority}")
-        print(record.application_version)
-        print(full_price)
         discount_factor = float(100 - discount) / 100
 
         if not full_price:
@@ -113,9 +111,7 @@ class InvoiceAPI():
             self.log.append(f'Failed to get tag or discounted_price for record: {record.id}.')
             return None
 
-
         split_discounted_price = self._cost_center_split_factor(discounted_price, costcenter, percent_kth)
-
         order = record.microbial_order.id if self.record_type == 'Microbial' else record.order
         ticket_number = record.microbial_order.ticket_number if self.record_type == 'Microbial' else record.ticket_number
         lims_id = None if self.record_type == 'Pool' else record.internal_id
