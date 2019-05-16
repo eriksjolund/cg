@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-This module handles concatenation of balsamic fastq files.
+This module handles concatenation of usalt fastq files.
 
 Classes:
-    FastqFileNameCreator: Creates valid balsamic filenames
+    FastqFileNameCreator: Creates valid usalt filenames
     FastqFileConcatenator: Handles file concatenation
     FastqHandler: Handles fastq file linking
 """
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class FastqFileNameCreator:
-    """Creates valid balsamic filename from the parameters"""
+    """Creates valid usalt filename from the parameters"""
 
     @staticmethod
     def create(lane: str, flowcell: str, sample: str, read: str,
@@ -98,11 +98,11 @@ class FastqHandler:
     """Handles fastq file linking"""
 
     def __init__(self, config):
-        self.root_dir = config['balsamic']['root']
+        self.root_dir = config['usalt']['root']
 
     def link(self, family: str, sample: str, files: List):
-        """Link FASTQ files for a balsamic sample.
-        Shall be linked to /<balsamic root directory>/case-id/fastq/"""
+        """Link FASTQ files for a usalt sample.
+        Shall be linked to /<usalt root directory>/case-id/fastq/"""
 
         wrk_dir = Path(f'{self.root_dir}/{family}/fastq')
 

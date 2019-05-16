@@ -207,12 +207,15 @@ class UsaltAnalysisAPI:
 
         return rs
 
-    def link_sample(self, link_obj: models.FamilySample):
+    def link_sample(self, sample_obj: models.MicrobialSample):
         """Link FASTQ files for a sample."""
-        file_objs = self.hk.files(bundle=link_obj.sample.internal_id, tags=['fastq'])
+        file_objs = self.hk.files(bundle=sample_obj.internal_id, tags=['fastq'])
         files = []
 
+        print(file_objs.all())
+
         for file_obj in file_objs:
+
             # figure out flowcell name from header
             with gzip.open(file_obj.full_path) as handle:
                 header_line = handle.readline().decode()
@@ -235,9 +238,9 @@ class UsaltAnalysisAPI:
             files.append(data)
 
         # Decision for linking in Usalt structure if data_analysis contains Usalt
-        if link_obj.sample.data_analysis and 'usalt' in link_obj.sample.data_analysis.lower():
-            self.usalt_fastq_handler.link(case=link_obj.family.internal_id,
-                                             sample=link_obj.sample.internal_id, files=files)
+        if sample_obj.data_analysis and 'usalt' in sample_obj.data_analysis.lower():
+            self.usalt_fastq_handler.link(case=sample_obj.microbial_order.internal_id,
+                                          sample=sample_obj.internal_id, files=files)
 
     def panel(self, case_obj: models.Family) -> List[str]:
         """Create the aggregated panel file."""

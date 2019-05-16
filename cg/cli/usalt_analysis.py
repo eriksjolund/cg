@@ -96,29 +96,28 @@ def config(context, dry, case_id):
 
 
 @usalt.command()
-@click.option('-f', '--case', 'case_id', help='link all samples for a case')
+@click.option('-o', '--order', 'order_id', help='link all samples for an order')
 @click.argument('sample_id', required=False)
 @click.pass_context
-def link(context, case_id, sample_id):
+def link(context, order_id, sample_id):
     """Link FASTQ files for a SAMPLE_ID."""
-    if case_id and (sample_id is None):
+
+    if order_id and (sample_id is None):
         # link all samples in a case
-        case_obj = context.obj['db'].family(case_id)
-        link_objs = case_obj.links
-    elif sample_id and (case_id is None):
+        sample_objs = context.obj['db'].microbial_order(order_id).samples
+    elif sample_id and (order_id is None):
         # link sample in all its families
-        sample_obj = context.obj['db'].sample(sample_id)
-        link_objs = sample_obj.links
-    elif sample_id and case_id:
+        sample_objs = [context.obj['db'].microbial_sample(sample_id)]
+    elif sample_id and order_id:
         # link only one sample in a case
-        link_objs = [context.obj['db'].link(case_id, sample_id)]
+        sample_objs = [context.obj['db'].microbial_sample(sample_id)]
     else:
-        LOG.error('provide case and/or sample')
+        LOG.error('provide order and/or sample')
         context.abort()
 
-    for link_obj in link_objs:
-        LOG.info(f"{link_obj.sample.internal_id}: link FASTQ files")
-        context.obj['api'].link_sample(link_obj)
+    for sample_obj in sample_objs:
+        LOG.info(f"{sample_obj.internal_id}: link FASTQ files")
+        context.obj['api'].link_sample(sample_obj)
 
 
 @usalt.command()
@@ -157,7 +156,7 @@ def start(context: click.Context, case_id: str, priority: str = None, email: str
 
 @usalt.command()
 @click.pass_context
-def usalt_auto(context: click.Context):
+def auto(context: click.Context):
     """Start all analyses that are ready for analysis."""
     exit_code = 0
     for case_obj in context.obj['db'].cases_to_usalt_analyze():
@@ -179,7 +178,7 @@ def usalt_auto(context: click.Context):
 @usalt.command()
 @click.option('-f', '--case', 'case_id', help='remove fastq folder for a case')
 @click.pass_context
-def usalt_rm_fastq(context, case_id):
+def rm_fastq(context, case_id):
     """remove fastq folder"""
 
     wrk_dir = Path(f"{context.obj['usalt']['root']}/{case_id}/fastq")
