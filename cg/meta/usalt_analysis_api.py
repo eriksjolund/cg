@@ -238,9 +238,8 @@ class UsaltAnalysisAPI:
             files.append(data)
 
         # Decision for linking in Usalt structure if data_analysis contains Usalt
-        if sample_obj.data_analysis and 'usalt' in sample_obj.data_analysis.lower():
-            self.usalt_fastq_handler.link(case=sample_obj.microbial_order.internal_id,
-                                          sample=sample_obj.internal_id, files=files)
+        self.usalt_fastq_handler.link(case=sample_obj.microbial_order.internal_id,
+                                      sample=sample_obj.internal_id, files=files)
 
     def panel(self, case_obj: models.Family) -> List[str]:
         """Create the aggregated panel file."""
