@@ -8,7 +8,9 @@ import ruamel.yaml
 import cg
 from cg.store import Store
 
-from .mip_analysis import mip_analysis
+from .mip_analysis import mip
+from .balsamic_analysis import balsamic
+from .usalt_analysis import usalt_analysis
 from .store import store
 from .add import add
 from .get import get
@@ -63,7 +65,6 @@ def init(context, reset, force):
 
 
 base.add_command(add)
-base.add_command(mip_analysis)
 base.add_command(backup)
 base.add_command(clean)
 base.add_command(deliver)
@@ -74,3 +75,15 @@ base.add_command(store)
 base.add_command(status)
 base.add_command(transfer)
 base.add_command(upload)
+
+
+@base.group()
+@click.pass_context
+def analysis(context):
+    """Analysis point of entry"""
+    pass
+
+
+analysis.add_command(mip)
+analysis.add_command(balsamic)
+analysis.add_command(usalt_analysis)

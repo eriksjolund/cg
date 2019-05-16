@@ -24,7 +24,7 @@ START_WITH_PROGRAM = click.option('-sw', '--start-with', help='start mip from th
 @START_WITH_PROGRAM
 @click.option('-f', '--family', 'family_id', help='family to prepare and start an analysis for')
 @click.pass_context
-def mip_analysis(context, priority, email, family_id, start_with):
+def mip(context, priority, email, family_id, start_with):
     """Prepare and start a MIP analysis for a FAMILY_ID."""
     context.obj['db'] = Store(context.obj['database'])
     hk_api = hk.HousekeeperAPI(context.obj)
@@ -60,18 +60,18 @@ def mip_analysis(context, priority, email, family_id, start_with):
             context.obj['db'].commit()
         else:
             # execute the analysis!
-            context.invoke(mip_config, family_id=family_id)
-            context.invoke(mip_link, family_id=family_id)
-            context.invoke(mip_panel, family_id=family_id)
-            context.invoke(mip_start, family_id=family_id, priority=priority, email=email,
+            context.invoke(config, family_id=family_id)
+            context.invoke(link, family_id=family_id)
+            context.invoke(panel, family_id=family_id)
+            context.invoke(start, family_id=family_id, priority=priority, email=email,
                            start_with=start_with)
 
 
-@mip_analysis.command()
+@mip.command()
 @click.option('-d', '--dry', is_flag=True, help='print config to console')
 @click.argument('family_id')
 @click.pass_context
-def mip_config(context, dry, family_id):
+def config(context, dry, family_id):
     """Generate a config for the FAMILY_ID.
 
     Args:
@@ -95,11 +95,11 @@ def mip_config(context, dry, family_id):
         LOG.info(f"saved config to: {out_path}")
 
 
-@mip_analysis.command()
+@mip.command()
 @click.option('-f', '--family', 'family_id', help='link all samples for a family')
 @click.argument('sample_id', required=False)
 @click.pass_context
-def mip_link(context, family_id, sample_id):
+def link(context, family_id, sample_id):
     """Link FASTQ files for a SAMPLE_ID."""
     if family_id and (sample_id is None):
         # link all samples in a family
@@ -121,11 +121,11 @@ def mip_link(context, family_id, sample_id):
         context.obj['api'].link_sample(link_obj)
 
 
-@mip_analysis.command()
+@mip.command()
 @click.option('-p', '--print', 'print_output', is_flag=True, help='print to console')
 @click.argument('family_id')
 @click.pass_context
-def mip_panel(context, print_output, family_id):
+def panel(context, print_output, family_id):
     """Write aggregated gene panel file."""
     family_obj = context.obj['db'].family(family_id)
     bed_lines = context.obj['api'].panel(family_obj)
@@ -136,13 +136,13 @@ def mip_panel(context, print_output, family_id):
         context.obj['tb'].write_panel(family_id, bed_lines)
 
 
-@mip_analysis.command()
+@mip.command()
 @PRIORITY_OPTION
 @EMAIL_OPTION
 @START_WITH_PROGRAM
 @click.argument('family_id')
 @click.pass_context
-def mip_start(context: click.Context, family_id: str, priority: str = None, email: str = None,
+def start(context: click.Context, family_id: str, priority: str = None, email: str = None,
               start_with: str = None):
     """Start the analysis pipeline for a family."""
     family_obj = context.obj['db'].family(family_id)
@@ -155,9 +155,9 @@ def mip_start(context: click.Context, family_id: str, priority: str = None, emai
         context.obj['api'].start(family_obj, priority=priority, email=email, start_with=start_with)
 
 
-@mip_analysis.command()
+@mip.command()
 @click.pass_context
-def mip_auto(context: click.Context):
+def auto(context: click.Context):
     """Start all analyses that are ready for analysis."""
     exit_code = 0
     for family_obj in context.obj['db'].families_to_mip_analyze():
@@ -165,7 +165,7 @@ def mip_auto(context: click.Context):
         priority = ('high' if family_obj.high_priority else
                     ('low' if family_obj.low_priority else 'normal'))
         try:
-            context.invoke(mip_analysis, priority=priority, family_id=family_obj.internal_id)
+            context.invoke(mip, priority=priority, family_id=family_obj.internal_id)
         except tb.MipStartError as error:
             LOG.exception(error.message)
             exit_code = 1

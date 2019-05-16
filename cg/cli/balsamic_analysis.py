@@ -24,7 +24,7 @@ START_WITH_PROGRAM = click.option('-sw', '--start-with', help='start balsamic fr
 @START_WITH_PROGRAM
 @click.option('-f', '--case', 'case_id', help='case to prepare and start an analysis for')
 @click.pass_context
-def balsamic_analysis(context, priority, email, case_id, start_with):
+def balsamic(context, priority, email, case_id, start_with):
     """Prepare and start a Balsamic analysis for a FAMILY_ID."""
     context.obj['db'] = Store(context.obj['database'])
     hk_api = hk.HousekeeperAPI(context.obj)
@@ -60,18 +60,18 @@ def balsamic_analysis(context, priority, email, case_id, start_with):
             context.obj['db'].commit()
         else:
             # execute the analysis!
-            context.invoke(balsamic_config, case_id=case_id)
-            context.invoke(balsamic_link, case_id=case_id)
-            context.invoke(balsamic_panel, case_id=case_id)
-            context.invoke(balsamic_start, case_id=case_id, priority=priority, email=email,
+            context.invoke(config, case_id=case_id)
+            context.invoke(link, case_id=case_id)
+            context.invoke(panel, case_id=case_id)
+            context.invoke(start, case_id=case_id, priority=priority, email=email,
                            start_with=start_with)
 
 
-@balsamic_analysis.command()
+@balsamic.command()
 @click.option('-d', '--dry', is_flag=True, help='print config to console')
 @click.argument('case_id')
 @click.pass_context
-def balsamic_config(context, dry, case_id):
+def config(context, dry, case_id):
     """Generate a config for the FAMILY_ID.
 
     Args:
@@ -95,11 +95,11 @@ def balsamic_config(context, dry, case_id):
         LOG.info(f"saved config to: {out_path}")
 
 
-@balsamic_analysis.command()
+@balsamic.command()
 @click.option('-f', '--case', 'case_id', help='link all samples for a case')
 @click.argument('sample_id', required=False)
 @click.pass_context
-def balsamic_link(context, case_id, sample_id):
+def link(context, case_id, sample_id):
     """Link FASTQ files for a SAMPLE_ID."""
     if case_id and (sample_id is None):
         # link all samples in a case
@@ -121,11 +121,11 @@ def balsamic_link(context, case_id, sample_id):
         context.obj['api'].link_sample(link_obj)
 
 
-@balsamic_analysis.command()
+@balsamic.command()
 @click.option('-p', '--print', 'print_output', is_flag=True, help='print to console')
 @click.argument('case_id')
 @click.pass_context
-def balsamic_panel(context, print_output, case_id):
+def panel(context, print_output, case_id):
     """Write aggregated gene panel file."""
     case_obj = context.obj['db'].family(case_id)
     bed_lines = context.obj['api'].panel(case_obj)
@@ -136,14 +136,14 @@ def balsamic_panel(context, print_output, case_id):
         context.obj['tb'].write_panel(case_id, bed_lines)
 
 
-@balsamic_analysis.command()
+@balsamic.command()
 @PRIORITY_OPTION
 @EMAIL_OPTION
 @START_WITH_PROGRAM
 @click.argument('case_id')
 @click.pass_context
-def balsamic_start(context: click.Context, case_id: str, priority: str = None, email: str = None,
-                   start_with: str = None):
+def start(context: click.Context, case_id: str, priority: str = None, email: str = None,
+          start_with: str = None):
     """Start the analysis pipeline for a case."""
     case_obj = context.obj['db'].family(case_id)
     if case_obj is None:
@@ -155,9 +155,9 @@ def balsamic_start(context: click.Context, case_id: str, priority: str = None, e
         context.obj['api'].start(case_obj, priority=priority, email=email, start_with=start_with)
 
 
-@balsamic_analysis.command()
+@balsamic.command()
 @click.pass_context
-def balsamic_auto(context: click.Context):
+def auto(context: click.Context):
     """Start all analyses that are ready for analysis."""
     exit_code = 0
     for case_obj in context.obj['db'].cases_to_balsamic_analyze():
@@ -165,7 +165,7 @@ def balsamic_auto(context: click.Context):
         priority = ('high' if case_obj.high_priority else
                     ('low' if case_obj.low_priority else 'normal'))
         try:
-            context.invoke(balsamic_analysis, priority=priority, case_id=case_obj.internal_id)
+            context.invoke(balsamic, priority=priority, case_id=case_obj.internal_id)
         except tb.BalsamicStartError as error:
             LOG.exception(error.message)
             exit_code = 1
@@ -176,10 +176,10 @@ def balsamic_auto(context: click.Context):
     sys.exit(exit_code)
 
 
-@balsamic_analysis.command()
+@balsamic.command()
 @click.option('-f', '--case', 'case_id', help='remove fastq folder for a case')
 @click.pass_context
-def balsamic_rm_fastq(context, case_id):
+def rm_fastq(context, case_id):
     """remove fastq folder"""
 
     wrk_dir = Path(f"{context.obj['balsamic']['root']}/{case_id}/fastq")

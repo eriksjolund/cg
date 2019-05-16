@@ -8,7 +8,7 @@ from typing import List
 import click
 import ruamel.yaml
 from trailblazer.usalt import files, fastq, trending
-from trailblazer.usalt.start import usaltCli
+from trailblazer.usalt.start import UsaltCli
 from trailblazer.cli.utils import environ_email
 from trailblazer.store import Store, models
 
@@ -17,17 +17,17 @@ from .usalt_add import AddHandler
 log = logging.getLogger(__name__)
 
 
-class usaltTrailblazerAPI(Store, AddHandler, fastq.FastqHandler):
+class UsaltTrailblazerAPI(Store, AddHandler, fastq.FastqHandler):
     """Interface to Trailblazer for `cg`."""
 
     parse_sampleinfo = staticmethod(files.parse_sampleinfo)
 
     def __init__(self, config: dict):
-        super(usaltTrailblazerAPI, self).__init__(
+        super(UsaltTrailblazerAPI, self).__init__(
             config['trailblazer']['database'],
             families_dir=config['trailblazer']['root'],
         )
-        self.usalt_cli = usaltCli(config['trailblazer']['script'])
+        self.usalt_cli = UsaltCli(config['trailblazer']['script'])
         self.usalt_config = config['trailblazer']['usalt_config']
 
     def start(self, family_id: str, priority: str = 'normal', email: str = None,
