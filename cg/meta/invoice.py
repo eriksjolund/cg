@@ -60,6 +60,77 @@ class InvoiceAPI():
 
         return contact
 
+    def _discount_price(self, record, discount: int = 0):
+        """Get discount price for a sample, pool or microbial_sample."""
+
+        priority = 'research' if self.record_type == 'Pool' else record.priority_human
+
+        full_price = getattr(record.application_version, f"price_{priority}")
+        print(record.application_version)
+        print(full_price)
+        discount_factor = float(100 - discount) / 100
+
+        if not full_price:
+            return None
+        return full_price * discount_factor
+
+
+    def _cost_center_split_factor(self, price, costcenter, percent_kth):
+        """Split price based on cost center"""
+        if price:
+            try:
+                if costcenter == 'kth':
+                    split_factor = percent_kth / 100
+                else:
+                    split_factor = (100 - percent_kth) / 100
+                split_price = round(price * split_factor, 1)
+            except:
+                self.log.append('Could not calculate price.')
+                return None
+        else:
+            self.log.append('Price missing.')
+            return None
+        return split_price
+
+
+    def prepare_record(self, costcenter: str, discount: int, record):
+        """Get invoice information for a specific sample, pool or microbial_sample."""
+
+        try:
+            tag = record.application_version.application.tag
+        except:
+            self.log.append(f'Could not get application tag for record: {record.id}.')
+            return None
+        try:
+            percent_kth = record.application_version.application.percent_kth
+        except:
+            self.log.append(f'Could not get kth percentage for record: {record.id}.')
+            return None
+
+        discounted_price = self._discount_price(record, discount)
+
+        if None in [tag, discounted_price]:
+            self.log.append(f'Failed to get tag or discounted_price for record: {record.id}.')
+            return None
+
+
+        split_discounted_price = self._cost_center_split_factor(discounted_price, costcenter, percent_kth)
+
+        order = record.microbial_order.id if self.record_type == 'Microbial' else record.order
+        ticket_number = record.microbial_order.ticket_number if self.record_type == 'Microbial' else record.ticket_number
+        lims_id = None if self.record_type == 'Pool' else record.internal_id
+        priority = 'research' if self.record_type == 'Pool' else record.priority_human
+
+        return {
+            'name': record.name,
+            'lims_id': lims_id,
+            'id': record.id,
+            'application_tag': record.application_version.application.tag,
+            'project': f"{order or 'NA'} ({ticket_number or 'NA'})",
+            'date': record.received_at.date() if record.received_at else '',
+            'price': split_discounted_price,
+            'priority': priority}
+
 
     def prepare(self, costcenter: str) -> dict:
         """Get information about an invoice to generate Excel report."""
@@ -94,70 +165,6 @@ class InvoiceAPI():
             'records': records,
             'pooled_samples': pooled_samples,
             'record_type': self.record_type}
-
-
-    def _discount_price(self, record, discount: int = 0):
-        """Get discount price for a sample, pool or microbial_sample."""
-
-        priority = 'research' if self.record_type == 'Pool' else record.priority_human
-
-        full_price = getattr(record.application_version, f"price_{priority}")
-        discount_factor = float(100 - discount) / 100
-
-        if not full_price:
-            return None
-        return full_price * discount_factor
-
-
-    def _cost_center_split_factor(self, price, costcenter, percent_kth):
-        """Split price based on cost center"""
-        if price:
-            try:
-                if costcenter == 'kth':
-                    split_factor = percent_kth / 100
-                else:
-                    split_factor = (100 - percent_kth) / 100
-                split_price = round(price * split_factor, 1)
-            except:
-                self.log.append(f'Could not calculate price for samples with application '
-                                f'tag/version: {tag}/{version}. Missing %KTH')
-                return None
-        else:
-            self.log.append(
-                f'Could not get price for samples with application tag/version: {tag}/{version}.')
-            return None
-        return split_price
-
-
-    def prepare_record(self, costcenter: str, discount: int, record):
-        """Get invoice information for a specific sample, pool or microbial_sample."""
-
-        try:
-            tag = record.application_version.application.tag
-            version = str(record.application_version.version)
-            percent_kth = record.application_version.application.percent_kth
-            discounted_price = self._discount_price(record, discount)
-        except:
-            self.log.append(f'Application tag/version semms to be missing for sample {record.id}.')
-            return None
-
-        split_discounted_price = self._cost_center_split_factor(discounted_price, costcenter, percent_kth)
-
-        order = record.microbial_order.id if self.record_type == 'Microbial' else record.order
-        ticket_number = record.microbial_order.ticket_number if self.record_type == 'Microbial' else record.ticket_number
-        lims_id = None if self.record_type == 'Pool' else record.internal_id
-        priority = 'research' if self.record_type == 'Pool' else record.priority_human
-
-        return {
-            'name': record.name,
-            'lims_id': lims_id,
-            'id': record.id,
-            'application_tag': record.application_version.application.tag,
-            'project': f"{order or 'NA'} ({ticket_number or 'NA'})",
-            'date': record.received_at.date() if record.received_at else '',
-            'price': split_discounted_price,
-            'priority': priority}
-
 
     def total_price(self) -> float:
         """Get the total price for all records in the invoice"""
