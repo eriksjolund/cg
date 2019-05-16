@@ -10,7 +10,7 @@ from cg.store import Store
 
 from .mip_analysis import mip
 from .balsamic_analysis import balsamic
-from .usalt_analysis import usalt_analysis
+from .usalt_analysis import usalt
 from .store import store
 from .add import add
 from .get import get
@@ -86,4 +86,4 @@ def analysis(context):
 
 analysis.add_command(mip)
 analysis.add_command(balsamic)
-analysis.add_command(usalt_analysis)
+analysis.add_command(usalt)

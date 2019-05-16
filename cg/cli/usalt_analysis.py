@@ -24,7 +24,7 @@ START_WITH_PROGRAM = click.option('-sw', '--start-with', help='start usalt from 
 @START_WITH_PROGRAM
 @click.option('-f', '--case', 'case_id', help='case to prepare and start an analysis for')
 @click.pass_context
-def usalt_analysis(context, priority, email, case_id, start_with):
+def usalt(context, priority, email, case_id, start_with):
     """Prepare and start a Usalt analysis for a FAMILY_ID."""
     context.obj['db'] = Store(context.obj['database'])
     hk_api = hk.HousekeeperAPI(context.obj)
@@ -60,18 +60,18 @@ def usalt_analysis(context, priority, email, case_id, start_with):
             context.obj['db'].commit()
         else:
             # execute the analysis!
-            context.invoke(usalt_config, case_id=case_id)
-            context.invoke(usalt_link, case_id=case_id)
-            context.invoke(usalt_panel, case_id=case_id)
-            context.invoke(usalt_start, case_id=case_id, priority=priority, email=email,
+            context.invoke(config, case_id=case_id)
+            context.invoke(link, case_id=case_id)
+            context.invoke(panel, case_id=case_id)
+            context.invoke(start, case_id=case_id, priority=priority, email=email,
                            start_with=start_with)
 
 
-@usalt_analysis.command()
+@usalt.command()
 @click.option('-d', '--dry', is_flag=True, help='print config to console')
 @click.argument('case_id')
 @click.pass_context
-def usalt_config(context, dry, case_id):
+def config(context, dry, case_id):
     """Generate a config for the FAMILY_ID.
 
     Args:
@@ -95,11 +95,11 @@ def usalt_config(context, dry, case_id):
         LOG.info(f"saved config to: {out_path}")
 
 
-@usalt_analysis.command()
+@usalt.command()
 @click.option('-f', '--case', 'case_id', help='link all samples for a case')
 @click.argument('sample_id', required=False)
 @click.pass_context
-def usalt_link(context, case_id, sample_id):
+def link(context, case_id, sample_id):
     """Link FASTQ files for a SAMPLE_ID."""
     if case_id and (sample_id is None):
         # link all samples in a case
@@ -121,11 +121,11 @@ def usalt_link(context, case_id, sample_id):
         context.obj['api'].link_sample(link_obj)
 
 
-@usalt_analysis.command()
+@usalt.command()
 @click.option('-p', '--print', 'print_output', is_flag=True, help='print to console')
 @click.argument('case_id')
 @click.pass_context
-def usalt_panel(context, print_output, case_id):
+def panel(context, print_output, case_id):
     """Write aggregated gene panel file."""
     case_obj = context.obj['db'].family(case_id)
     bed_lines = context.obj['api'].panel(case_obj)
@@ -136,14 +136,14 @@ def usalt_panel(context, print_output, case_id):
         context.obj['tb'].write_panel(case_id, bed_lines)
 
 
-@usalt_analysis.command()
+@usalt.command()
 @PRIORITY_OPTION
 @EMAIL_OPTION
 @START_WITH_PROGRAM
 @click.argument('case_id')
 @click.pass_context
-def usalt_start(context: click.Context, case_id: str, priority: str = None, email: str = None,
-                   start_with: str = None):
+def start(context: click.Context, case_id: str, priority: str = None, email: str = None,
+          start_with: str = None):
     """Start the analysis pipeline for a case."""
     case_obj = context.obj['db'].family(case_id)
     if case_obj is None:
@@ -155,7 +155,7 @@ def usalt_start(context: click.Context, case_id: str, priority: str = None, emai
         context.obj['api'].start(case_obj, priority=priority, email=email, start_with=start_with)
 
 
-@usalt_analysis.command()
+@usalt.command()
 @click.pass_context
 def usalt_auto(context: click.Context):
     """Start all analyses that are ready for analysis."""
@@ -165,7 +165,7 @@ def usalt_auto(context: click.Context):
         priority = ('high' if case_obj.high_priority else
                     ('low' if case_obj.low_priority else 'normal'))
         try:
-            context.invoke(usalt_analysis, priority=priority, case_id=case_obj.internal_id)
+            context.invoke(usalt, priority=priority, case_id=case_obj.internal_id)
         except tb.UsaltStartError as error:
             LOG.exception(error.message)
             exit_code = 1
@@ -176,7 +176,7 @@ def usalt_auto(context: click.Context):
     sys.exit(exit_code)
 
 
-@usalt_analysis.command()
+@usalt.command()
 @click.option('-f', '--case', 'case_id', help='remove fastq folder for a case')
 @click.pass_context
 def usalt_rm_fastq(context, case_id):
