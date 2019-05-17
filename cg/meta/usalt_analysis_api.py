@@ -212,8 +212,6 @@ class UsaltAnalysisAPI:
         file_objs = self.hk.files(bundle=sample_obj.internal_id, tags=['fastq'])
         files = []
 
-        print(file_objs.all())
-
         for file_obj in file_objs:
 
             # figure out flowcell name from header
@@ -236,6 +234,11 @@ class UsaltAnalysisAPI:
             if len(matches) > 0:
                 data['flowcell'] = f"{data['flowcell']}-{matches[0]}"
             files.append(data)
+
+        print(files)
+
+        print(self.usalt_fastq_handler.link)
+        print(self.usalt_fastq_handler.link())
 
         # Decision for linking in Usalt structure if data_analysis contains Usalt
         self.usalt_fastq_handler.link(case=sample_obj.microbial_order.internal_id,
