@@ -235,11 +235,6 @@ class UsaltAnalysisAPI:
                 data['flowcell'] = f"{data['flowcell']}-{matches[0]}"
             files.append(data)
 
-        print(files)
-
-        print(self.usalt_fastq_handler.link)
-        print(self.usalt_fastq_handler.link())
-
         # Decision for linking in Usalt structure if data_analysis contains Usalt
         self.usalt_fastq_handler.link(case=sample_obj.microbial_order.internal_id,
                                       sample=sample_obj.internal_id, files=files)
