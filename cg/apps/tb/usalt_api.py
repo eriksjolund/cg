@@ -7,7 +7,8 @@ from typing import List
 
 import click
 import ruamel.yaml
-from trailblazer.usalt import files, fastq, trending
+from cg.apps.usalt import fastq
+from trailblazer.usalt import files, trending
 from trailblazer.usalt.start import UsaltCli
 from trailblazer.cli.utils import environ_email
 from trailblazer.store import Store, models
