@@ -62,7 +62,6 @@ def usalt(context, priority, email, case_id, start_with):
             # execute the analysis!
             context.invoke(config, case_id=case_id)
             context.invoke(link, case_id=case_id)
-            context.invoke(panel, case_id=case_id)
             context.invoke(start, case_id=case_id, priority=priority, email=email,
                            start_with=start_with)
 
@@ -118,21 +117,6 @@ def link(context, order_id, sample_id):
     for sample_obj in sample_objs:
         LOG.info(f"{sample_obj.internal_id}: link FASTQ files")
         context.obj['api'].link_sample(sample_obj)
-
-
-@usalt.command()
-@click.option('-p', '--print', 'print_output', is_flag=True, help='print to console')
-@click.argument('case_id')
-@click.pass_context
-def panel(context, print_output, case_id):
-    """Write aggregated gene panel file."""
-    case_obj = context.obj['db'].family(case_id)
-    bed_lines = context.obj['api'].panel(case_obj)
-    if print_output:
-        for bed_line in bed_lines:
-            print(bed_line)
-    else:
-        context.obj['tb'].write_panel(case_id, bed_lines)
 
 
 @usalt.command()
