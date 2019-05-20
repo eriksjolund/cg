@@ -22,10 +22,10 @@ START_WITH_PROGRAM = click.option('-sw', '--start-with', help='start usalt from 
 @PRIORITY_OPTION
 @EMAIL_OPTION
 @START_WITH_PROGRAM
-@click.option('-f', '--case', 'case_id', help='case to prepare and start an analysis for')
+@click.option('-c', '--case', 'case_id', help='case to prepare and start an analysis for')
 @click.pass_context
 def usalt(context, priority, email, case_id, start_with):
-    """Prepare and start a Usalt analysis for a FAMILY_ID."""
+    """Prepare and start a Usalt analysis for a CASE_ID."""
     context.obj['db'] = Store(context.obj['database'])
     hk_api = hk.HousekeeperAPI(context.obj)
     scout_api = scoutapi.ScoutAPI(context.obj)
@@ -71,7 +71,7 @@ def usalt(context, priority, email, case_id, start_with):
 @click.argument('case_id')
 @click.pass_context
 def config(context, dry, case_id):
-    """Generate a config for the FAMILY_ID.
+    """Generate a config for the CASE_ID.
 
     Args:
         dry (Bool): Print config to console
