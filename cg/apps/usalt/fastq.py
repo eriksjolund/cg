@@ -104,7 +104,7 @@ class FastqHandler:
         """Link FASTQ files for a usalt sample.
         Shall be linked to /<usalt root directory>/case-id/fastq/"""
 
-        # The fastq files should be linked to /home/proj/production/microbial/fastq/<project>/<sample>/*.fastq.gz.
+        # The fastq files should be linked to /.../fastq/<project>/<sample>/*.fastq.gz.
         wrk_dir = Path(self.root_dir) / 'fastq' / case / sample
 
         wrk_dir.mkdir(parents=True, exist_ok=True)
