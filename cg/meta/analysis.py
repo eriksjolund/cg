@@ -2,19 +2,21 @@
 import gzip
 import logging
 import re
-from typing import List, Any
-import ruamel.yaml
 from pathlib import Path
+from typing import List, Any
+from ruamel.yaml import safe_load
 
 from requests.exceptions import HTTPError
 
 from cg.apps import tb, hk, scoutapi, lims
-from cg.store import models, Store
 from cg.meta.deliver.api import DeliverAPI
+from cg.apps.pipelines.fastqhandler import BaseFastqHandler
+from cg.store import models, Store
+
 
 COLLABORATORS = ('cust000', 'cust002', 'cust003', 'cust004', 'cust042')
 MASTER_LIST = ('ENDO', 'EP', 'IEM', 'IBMFS', 'mtDNA', 'MIT', 'PEDHEP', 'OMIM-AUTO',
-               'PIDCAD', 'PID', 'SKD', 'NMD', 'ATX', 'CTD', 'SPG', 'Ataxi', 'AD-HSP', 'IF')
+               'PIDCAD', 'PID', 'SKD', 'NMD', 'CTD', 'IF', 'NEURODEG')
 COMBOS = {
     'DSD': ('DSD', 'HYP', 'SEXDIF', 'SEXDET'),
     'CM': ('CNM', 'CM'),
@@ -24,23 +26,29 @@ CAPTUREKIT_MAP = {'Agilent Sureselect CRE': 'agilent_sureselect_cre.v1',
                   'SureSelect CRE': 'agilent_sureselect_cre.v1',
                   'Agilent Sureselect V5': 'agilent_sureselect.v5',
                   'SureSelect Focused Exome': 'agilent_sureselect_focusedexome.v1',
+                  'Twist Human core exome v1.3 + Twist Human RefSeq Panel':
+                  'Twist_Target_hg19_RefSeq.bed',
                   'other': 'agilent_sureselect_cre.v1'}
 
 
-class AnalysisAPI():
+class AnalysisAPI:
+    """The pipelines are accessed through Trailblazer but cg provides additional conventions and
+    hooks into the status database that makes managing analyses simpler"""
 
     def __init__(self, db: Store, hk_api: hk.HousekeeperAPI, scout_api: scoutapi.ScoutAPI,
-                 tb_api: tb.TrailblazerAPI, lims_api: lims.LimsAPI, deliver_api:
-            DeliverAPI, ruamel=ruamel, Path=Path, logger=logging.getLogger(
-        __name__)):
+                 tb_api: tb.TrailblazerAPI, lims_api: lims.LimsAPI, deliver_api: DeliverAPI,
+                 yaml_loader=safe_load,
+                 path_api=Path,
+                 logger=logging.getLogger(
+                     __name__)):
         self.db = db
         self.tb = tb_api
         self.hk = hk_api
         self.scout = scout_api
         self.lims = lims_api
         self.deliver = deliver_api
-        self.ruamel = ruamel
-        self.Path = Path
+        self.yaml_loader = yaml_loader
+        self.pather = path_api
         self.LOG = logger
 
     def check(self, family_obj: models.Family):
@@ -72,7 +80,8 @@ class AnalysisAPI():
             downsampled = isinstance(link_obj.sample.downsampled_to, int)
             external = link_obj.sample.application_version.application.is_external
             if downsampled or external:
-                self.LOG.info(f"{link_obj.sample.internal_id}: downsampled/external - skip evaluation")
+                self.LOG.info(
+                    '%s: downsampled/external - skip evaluation', link_obj.sample.internal_id)
                 kwargs['skip_evaluation'] = True
                 break
 
@@ -83,11 +92,11 @@ class AnalysisAPI():
 
     def config(self, family_obj: models.Family) -> dict:
         """Make the MIP config. Meta data for the family is taken from the family object
-        and converted to MIP format via trailblazer. 
-        
+        and converted to MIP format via trailblazer.
+
         Args:
             family_obj (models.Family):
-        
+
         Returns:
             dict: config_data (MIP format)
         """
@@ -126,7 +135,8 @@ class AnalysisAPI():
                         try:
                             capture_kit = self.lims.capture_kit(link.sample.internal_id)
                             if capture_kit is None or capture_kit == 'NA':
-                                self.LOG.warning(f"{link.sample.internal_id}: capture kit not found")
+                                self.LOG.warning(
+                                    f"%s: capture kit not found", link.sample.internal_id)
                             else:
                                 sample_data['capture_kit'] = CAPTUREKIT_MAP[capture_kit]
                         except HTTPError:
@@ -199,24 +209,22 @@ class AnalysisAPI():
 
         return rs
 
-    def link_sample(self, link_obj: models.FamilySample):
+    def link_sample(self, fastq_handler: BaseFastqHandler, sample: str, case: str):
         """Link FASTQ files for a sample."""
-        file_objs = self.hk.files(bundle=link_obj.sample.internal_id, tags=['fastq'])
+        file_objs = self.hk.files(bundle=sample, tags=['fastq'])
         files = []
+
         for file_obj in file_objs:
             # figure out flowcell name from header
             with gzip.open(file_obj.full_path) as handle:
                 header_line = handle.readline().decode()
                 header_info = self._fastq_header(header_line)
-                lane = header_info['lane']
-                flowcell = header_info['flowcell']
-                readnumber = header_info['readnumber']
 
             data = {
                 'path': file_obj.full_path,
-                'lane': int(lane),
-                'flowcell': flowcell,
-                'read': int(readnumber),
+                'lane': int(header_info['lane']),
+                'flowcell': header_info['flowcell'],
+                'read': int(header_info['readnumber']),
                 'undetermined': ('_Undetermined_' in file_obj.path),
             }
             # look for tile identifier (HiSeq X runs)
@@ -225,12 +233,7 @@ class AnalysisAPI():
                 data['flowcell'] = f"{data['flowcell']}-{matches[0]}"
             files.append(data)
 
-        self.tb.link(
-            family=link_obj.family.internal_id,
-            sample=link_obj.sample.internal_id,
-            analysis_type=link_obj.sample.application_version.application.analysis_type,
-            files=files,
-        )
+        fastq_handler.link(case=case, sample=sample, files=files)
 
     def panel(self, family_obj: models.Family) -> List[str]:
         """Create the aggregated panel file."""
@@ -276,9 +279,9 @@ class AnalysisAPI():
     def _open_bundle_file(self, relative_file_path: str) -> Any:
         """Open a bundle file and return it as an Python object."""
 
-        full_file_path = self.Path(self.deliver.get_post_analysis_files_root_dir()).joinpath(
+        full_file_path = self.pather(self.deliver.get_post_analysis_files_root_dir()).joinpath(
             relative_file_path)
-        open_file = self.ruamel.yaml.safe_load(self.Path(full_file_path).open())
+        open_file = self.yaml_loader(self.pather(full_file_path).open())
         return open_file
 
     def get_latest_metadata(self, family_id: str) -> dict:

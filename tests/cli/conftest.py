@@ -1,3 +1,4 @@
+"""Fixtures for cli tests"""
 from functools import partial
 
 from cg.apps import hk
@@ -90,6 +91,7 @@ def analysis_store(base_store, analysis_family):
 
 
 class MockHkVersion(hk.models.Version):
+    """Mocked Housekeeper.Model.Version object"""
     pass
 
 

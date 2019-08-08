@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
+
+"""
+    API for uploading observations
+"""
+
 import logging
+from typing import List
 
 from cg.apps import hk, loqus
-from cg.exc import DuplicateRecordError
+from cg.exc import DuplicateRecordError, DuplicateSampleError, CaseNotFoundError
 from cg.store import models, Store
 
 LOG = logging.getLogger(__name__)
 
 
-class UploadObservationsAPI(object):
+class UploadObservationsAPI():
 
     """API to upload observations to LoqusDB."""
 
@@ -22,22 +28,40 @@ class UploadObservationsAPI(object):
         analysis_date = analysis_obj.started_at or analysis_obj.completed_at
         hk_version = self.housekeeper.version(analysis_obj.family.internal_id, analysis_date)
         hk_vcf = self.housekeeper.files(version=hk_version.id, tags=['vcf-snv-research']).first()
+        hk_sv_vcf = self.housekeeper.files(version=hk_version.id, tags=['vcf-sv-research']).first()
+        hk_snv_gbcf = self.housekeeper.files(version=hk_version.id, tags=['snv-gbcf']).first()
         hk_pedigree = self.housekeeper.files(version=hk_version.id, tags=['pedigree']).first()
         data = {
             'family': analysis_obj.family.internal_id,
             'vcf': str(hk_vcf.full_path),
+            'sv_vcf': str(hk_sv_vcf.full_path),
+            'snv_gbcf': str(hk_snv_gbcf.full_path),
             'pedigree': str(hk_pedigree.full_path),
         }
         return data
 
     def upload(self, data: dict):
         """Upload data about genotypes for a family of samples."""
-        existing_case = self.loqusdb.case({'case_id': data['family']})
-        if existing_case is None:
-            results = self.loqusdb.load(data['family'], data['pedigree'], data['vcf'])
-            LOG.info(f"parsed {results['variants']} variants")
+
+        try:
+            existing_case = self.loqusdb.get_case(case_id=data['family'])
+
+        # If CaseNotFoundError is raised, this should trigger the load method of loqusdb
+        except CaseNotFoundError:
+
+            duplicate = self.loqusdb.get_duplicate(data['snv_gbcf'])
+            if duplicate:
+                err_msg = f"Found duplicate {duplicate['ind_id']} in case {duplicate['case_id']}"
+                raise DuplicateSampleError(err_msg)
+
+            results = self.loqusdb.load(data['family'], data['pedigree'], data['vcf'],
+                                        data['sv_vcf'], data['snv_gbcf'])
+            log_msg = f"parsed {results['variants']} variants"
+            LOG.info(log_msg)
+
         else:
-            LOG.debug("found existing family, skipping observations")
+            log_msg = f"found existing family {existing_case['case_id']}, skipping observations"
+            LOG.debug(log_msg)
 
     def process(self, analysis_obj: models.Analysis):
         """Process an upload observation counts for a case."""
@@ -51,3 +75,8 @@ class UploadObservationsAPI(object):
         for link in analysis_obj.family.links:
             link.sample.loqusdb_id = str(case_obj['_id'])
         self.status.commit()
+
+    @staticmethod
+    def _all_samples(links: List[models.FamilySample]) -> bool:
+        """Return True if all samples are external or sequenced inhouse."""
+        return all((link.sample.sequenced_at or link.sample.is_external) for link in links)

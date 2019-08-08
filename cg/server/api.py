@@ -251,7 +251,8 @@ def microbial_sample(sample_id):
     sample_obj = db.microbial_sample(sample_id)
     if sample_obj is None:
         return abort(404)
-    elif not g.current_user.is_admin and (g.current_user.customer != sample_obj.customer):
+    elif not g.current_user.is_admin and (g.current_user.customer !=
+                                          sample_obj.microbial_order.customer):
         return abort(401)
     data = sample_obj.to_dict()
     return jsonify(**data)
@@ -332,13 +333,13 @@ def options():
             'value': customer.internal_id,
         } for customer in customer_objs],
         applications=apptag_groups,
-        panels=[panel.abbrev for panel in db.Panel.query if panel.customer in customer_objs],
+        panels=[panel.abbrev for panel in db.panels()],
         organisms=[{
             'name': organism.name,
             'reference_genome': organism.reference_genome,
             'internal_id': organism.internal_id,
             'verified': organism.verified,
-        } for organism in db.Organism.query],
+        } for organism in db.organisms()],
         sources=source_groups
     )
 

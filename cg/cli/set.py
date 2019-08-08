@@ -3,7 +3,7 @@ import logging
 import click
 import datetime
 
-from cg.constants import FAMILY_ACTIONS, PRIORITY_OPTIONS
+from cg.constants import FAMILY_ACTIONS, PRIORITY_OPTIONS, FLOWCELL_STATUS
 from cg.store import Store
 from cg.apps.lims import LimsAPI
 
@@ -28,6 +28,9 @@ def family(context, action, priority, panels, family_id):
     family_obj = context.obj['status'].family(family_id)
     if family_obj is None:
         LOG.error(f"{family_id}: family not found")
+        context.abort()
+    if not (action or priority or panels):
+        LOG.error(f"nothing to change")
         context.abort()
     if action:
         LOG.info(f"update action: {family_obj.action or 'NA'} -> {action}")
@@ -61,7 +64,6 @@ def family(context, action, priority, panels, family_id):
 @click.pass_context
 def sample(context, sex, customer, comment, downsampled_to, apptag, capture_kit, sample_id):
     """Update information about a sample."""
-    lims_api = LimsAPI(context.obj)
     sample_obj = context.obj['status'].sample(sample_id)
 
     if sample_obj is None:
@@ -74,7 +76,8 @@ def sample(context, sex, customer, comment, downsampled_to, apptag, capture_kit,
         context.obj['status'].commit()
 
         print(click.style('update LIMS/Gender', fg='blue'))
-        lims_api.update_sample(sample_id, sex=sex)
+        if context.obj.get('lims'):
+            LimsAPI(context.obj).update_sample(sample_id, sex=sex)
 
     if customer:
         customer_obj = context.obj['status'].customer(customer)
@@ -148,7 +151,7 @@ def sample(context, sex, customer, comment, downsampled_to, apptag, capture_kit,
 
 
 @set_cmd.command()
-@click.option('-s', '--status', type=click.Choice(['ondisk', 'removed', 'requested', 'processing']))
+@click.option('-s', '--status', type=click.Choice(FLOWCELL_STATUS))
 @click.argument('flowcell_name')
 @click.pass_context
 def flowcell(context, flowcell_name, status):
@@ -163,3 +166,105 @@ def flowcell(context, flowcell_name, status):
 
     context.obj['status'].commit()
     print(click.style(f"{flowcell_name} set: {prev_status} -> {status}", fg='green'))
+
+
+@set_cmd.command('microbial-order')
+@click.option('-a', '--application-tag', 'apptag', help='sets application tag on all samples in '
+                                                        'order.', type=str)
+@click.option('-p', '--priority', type=click.Choice(PRIORITY_OPTIONS), help='update priority')
+@click.argument('order_id')
+@click.argument('user_signature')
+@click.pass_context
+def microbial_order(context, apptag, priority, order_id, user_signature):
+    """Update information on all samples on a microbial order"""
+
+    if not apptag and not priority:
+        click.echo(click.style(f"no option specified: {order_id}", fg='yellow'))
+        context.abort()
+
+    microbial_order_obj = context.obj['status'].microbial_order(internal_id=order_id)
+
+    if not microbial_order_obj:
+        click.echo(click.style(f"order not found: {order_id}", fg='yellow'))
+        context.abort()
+
+    for sample_obj in microbial_order_obj.microbial_samples:
+        context.invoke(microbial_sample, sample_id=sample_obj.internal_id,
+                       user_signature=user_signature, apptag=apptag, priority=priority)
+
+
+@set_cmd.command('microbial-sample')
+@click.option('-a', '--application-tag', 'apptag', help='sets application tag.', type=str)
+@click.option('-p', '--priority', type=click.Choice(PRIORITY_OPTIONS), help='update priority')
+@click.argument('sample_id')
+@click.argument('user_signature')
+@click.pass_context
+def microbial_sample(context, apptag, priority, sample_id, user_signature):
+    """Update information on one sample"""
+
+    sample_obj = context.obj['status'].microbial_sample(internal_id=sample_id)
+
+    if not sample_obj:
+        click.echo(click.style(f"sample not found: {sample_id}", fg='yellow'))
+        context.abort()
+
+    if not apptag and not priority:
+        click.echo(click.style(f"no option specified: {sample_id}", fg='yellow'))
+        context.abort()
+
+    if apptag:
+        apptags = [app.tag for app in context.obj['status'].applications()]
+        if apptag not in apptags:
+            click.echo(click.style(f"Application tag {apptag} does not exist.", fg='red'))
+            context.abort()
+
+        application_version = context.obj['status'].current_application_version(apptag)
+        if application_version is None:
+            click.echo(click.style(f"No valid current application version found!", fg='red'))
+            context.abort()
+
+        application_version_id = application_version.id
+
+        if sample_obj.application_version_id == application_version_id:
+            click.echo(click.style(f"Sample {sample_obj.internal_id} already has the "
+                                   f"apptag {str(application_version)}", fg='yellow'))
+            return
+
+        comment = f"Application tag changed from" \
+            f" {sample_obj.application_version.application} to " \
+            f"{str(application_version)} by {user_signature}"
+        sample_obj.application_version_id = application_version_id
+        click.echo(click.style(f"Application tag for sample {sample_obj.internal_id} set to "
+                               f"{str(application_version)}.", fg='green'))
+
+        timestamp = str(datetime.datetime.now())[:-10]
+        if sample_obj.comment is None:
+            sample_obj.comment = f"{timestamp}: {comment}"
+        else:
+            sample_obj.comment += '\n' + f"{timestamp}: {comment}"
+        click.echo(click.style(f"Comment added to sample {sample_obj.internal_id}", fg='green'))
+        context.obj['status'].commit()
+
+        click.echo(click.style('update LIMS/application', fg='blue'))
+        if context.obj.get('lims'):
+            LimsAPI(context.obj).update_sample(sample_id, application=apptag)
+
+    if priority:
+        comment = f"Priority changed from" \
+            f" {sample_obj.priority_human} to " \
+            f"{str(priority)} by {user_signature}"
+        sample_obj.priority_human = priority
+        click.echo(click.style(f"priority for sample {sample_obj.internal_id} set to "
+                               f"{str(priority)}.", fg='green'))
+
+        timestamp = str(datetime.datetime.now())[:-10]
+        if sample_obj.comment is None:
+            sample_obj.comment = f"{timestamp}: {comment}"
+        else:
+            sample_obj.comment += '\n' + f"{timestamp}: {comment}"
+        click.echo(click.style(f"Comment added to sample {sample_obj.internal_id}", fg='green'))
+
+        context.obj['status'].commit()
+
+        if context.obj.get('lims'):
+            LimsAPI(context.obj).update_sample(sample_id, priority=priority)
