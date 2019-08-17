@@ -188,13 +188,13 @@ cg upload genotypes --re-upload raredragon
 
 ### `meta`
 
-This is the interfaces that bridge various apps. An example would be the "orders" module. When placing orders we need to coordinate information/actions between the apps: `lims`, `status`, and `osticket`. It also provides some additional functionality such as setting up the basis for the orders API and which fields are required for different order types.
+This is the interfaces that bridges various apps. An example would be the "orders" module. When placing orders we need to coordinate information/actions between the apps: `lims`, `status`, and `osticket`. It also provides some additional functionality such as setting up the basis for the orders API and which fields are required for different order types.
 
 #### orders
 
 Includes: `lims`, `status`, `osticket`
 
-The API exposes a single endpoint for submitting a batch of new samples/external samples for analysis. It handles a mix of updates to existing samples with entierly new ones. The API is designed to work well in a REST API context.
+The API exposes a single endpoint for submitting a batch of new samples/external samples for analysis. It handles a mix of updates to existing samples with entirely new ones. The API is designed to work well in a REST API context.
 
 The interface supports:
 
