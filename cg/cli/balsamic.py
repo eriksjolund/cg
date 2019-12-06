@@ -34,15 +34,22 @@ def balsamic(context, case_id, priority, email, target_bed):
     context.obj['analysis_api'] = AnalysisAPI
     context.obj['fastq_handler'] = BalsamicFastqHandler
     context.obj['gzipper'] = gzip
+
     if context.invoked_subcommand is None:
         if case_id is None:
-            LOGGER.error('provide a case')
+            _suggest_cases_to_analyze(context)
             context.abort()
 
         # execute the analysis!
         context.invoke(link, family_id=case_id)
         context.invoke(config, case_id=case_id, target_bed=target_bed)
         context.invoke(run, run_analysis=True, case_id=case_id, priority=priority, email=email)
+
+
+def _suggest_cases_to_analyze(context):
+    LOGGER.error('provide a case, suggestions:')
+    for case_obj in context.obj['db'].cases_to_balsamic_analyze()[:50]:
+        click.echo(case_obj)
 
 
 @balsamic.command()
@@ -52,14 +59,17 @@ def balsamic(context, case_id, priority, email, target_bed):
 @click.option('--quality-trim', is_flag=True, required=False, help='Optional')
 @click.option('--adapter-trim', is_flag=True, required=False, help='Optional')
 @click.option('--umi', is_flag=True, required=False, help='Optional')
-@click.argument('case_id')
+@click.argument('case_id', required=False)
 @click.pass_context
 def config(context, dry, target_bed, umi_trim_length, quality_trim, adapter_trim,
            umi, case_id):
     """Generate a config for the case_id.
     """
 
-    # missing sample_id and files
+    if case_id is None:
+        _suggest_cases_to_analyze(context)
+        context.abort()
+
     case_obj = context.obj['db'].family(case_id)
 
     if not case_obj:
@@ -190,10 +200,14 @@ def config(context, dry, target_bed, umi_trim_length, quality_trim, adapter_trim
 @click.option('--config', 'config_path', required=False, help='Optional')
 @PRIORITY_OPTION
 @EMAIL_OPTION
-@click.argument('case_id')
+@click.argument('case_id', required=False)
 @click.pass_context
 def run(context, dry, run_analysis, config_path, priority, email, case_id):
     """Generate a config for the case_id."""
+
+    if case_id is None:
+        _suggest_cases_to_analyze(context)
+        context.abort()
 
     conda_env = context.obj['balsamic']['conda_env']
     slurm_account = context.obj['balsamic']['slurm']['account']
@@ -247,6 +261,12 @@ def auto(context: click.Context, dry_run):
 
         try:
             context.invoke(balsamic, priority=priority, case_id=case_obj.internal_id)
+        except FileNotFoundError as error:
+            LOGGER.exception(error)
+            exit_code = FAIL
+        except BalsamicStartError as error:
+            LOGGER.exception(error.message)
+            exit_code = FAIL
         except LimsDataError as error:
             LOGGER.exception(error.message)
             exit_code = FAIL

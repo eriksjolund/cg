@@ -1,11 +1,12 @@
 """This script tests the cli methods to run balsamic"""
+import logging
 
 from cg.cli.balsamic import run
 
 EXIT_SUCCESS = 0
 
 
-def test_without_options(cli_runner):
+def test_without_options(cli_runner, caplog):
     """Test command with dry option"""
 
     # GIVEN
@@ -15,7 +16,9 @@ def test_without_options(cli_runner):
 
     # THEN command should mention argument
     assert result.exit_code != EXIT_SUCCESS
-    assert "Missing argument" in result.output
+
+    with caplog.at_level(logging.ERROR):
+        assert "provide a case, suggestions:" in caplog.text
 
 
 def test_with_case(cli_runner, base_context):
@@ -50,7 +53,7 @@ def test_dry(cli_runner, base_context):
     assert case_id in result.output
 
 
-def test_run_analysis(cli_runner, base_context):
+def test_dry_run_run_analysis(cli_runner, base_context):
     """Test command with run-analysis option"""
 
     # GIVEN case-id

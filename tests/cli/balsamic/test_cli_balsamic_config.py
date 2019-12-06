@@ -8,7 +8,7 @@ from cg.cli.balsamic import config
 EXIT_SUCCESS = 0
 
 
-def test_without_options(cli_runner, base_context):
+def test_without_options(cli_runner, base_context, caplog):
     """Test command with dry option"""
 
     # GIVEN
@@ -18,7 +18,11 @@ def test_without_options(cli_runner, base_context):
 
     # THEN command should mention argument
     assert result.exit_code != EXIT_SUCCESS
-    assert "Missing argument" in result.output
+
+    with caplog.at_level(logging.ERROR):
+        assert "provide a case, suggestions:" in caplog.text
+
+    assert "Aborted!" in result.output
 
 
 def test_with_missing_case(cli_runner, base_context, caplog):
