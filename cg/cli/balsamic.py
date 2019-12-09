@@ -239,6 +239,10 @@ def run(context, dry, run_analysis, config_path, priority, email, case_id):
         process = subprocess.run(
             ' '.join(command), shell=True
         )
+
+        context.obj['db'].family(case_id).action = 'running'
+        context.obj['db'].commit()
+
         return process
 
 
