@@ -1,5 +1,6 @@
 """This script tests the cli methods to run balsamic"""
 import logging
+import subprocess
 
 from cg.cli.balsamic import run
 
@@ -21,19 +22,19 @@ def test_without_options(cli_runner, caplog):
         assert "provide a case, suggestions:" in caplog.text
 
 
-def test_with_case(cli_runner, base_context):
+def test_with_case(mocker, cli_runner, base_context):
     """Test command with case to start with"""
 
     # GIVEN case-id, and malconfigured pipeline
     case_id = 'soberelephant'
-
-    context = base_context
+    mocker.patch('subprocess.run')
 
     # WHEN running
-    result = cli_runner.invoke(run, [case_id], obj=context)
+    context = base_context
+    cli_runner.invoke(run, [case_id], obj=context)
 
-    # THEN command should successfully call the comamnd it creates
-    assert result.exit_code == EXIT_SUCCESS
+    # THEN command should successfully call the command it creates
+    assert subprocess.run.call_count == 1
 
 
 def test_dry(cli_runner, base_context):
@@ -67,6 +68,22 @@ def test_dry_run_run_analysis(cli_runner, base_context):
     # THEN dry-print should include the option
     assert result.exit_code == EXIT_SUCCESS
     assert "--run-analysis" in result.output
+
+
+def test_run_analysis_sets_family_to_running(mocker, cli_runner, base_context, balsamic_case,
+                                             balsamic_store):
+    """Test command with a balsamic case"""
+
+    # GIVEN a case that is ready for Balsamic analysis
+    assert balsamic_store.family(balsamic_case.internal_id)
+    mocker.patch('subprocess.run')
+
+    # WHEN running command
+    result = cli_runner.invoke(run, [balsamic_case.internal_id, '--run-analysis'], obj=base_context)
+
+    # THEN command should have set the family as running
+    assert result.exit_code == EXIT_SUCCESS
+    assert balsamic_store.family(balsamic_case.internal_id).action == 'running'
 
 
 def test_config(cli_runner, base_context):

@@ -116,8 +116,17 @@ def balsamic_store(base_store: Store) -> Store:
 
 @pytest.fixture(scope='function')
 def balsamic_case(analysis_store) -> models.Family:
-    """case with balsamic data_type"""
-    return analysis_store.find_family(ensure_customer(analysis_store), 'balsamic_case')
+    """case with balsamic data_type ready for analysis start"""
+    _balsamic_case = analysis_store.find_family(ensure_customer(analysis_store), 'balsamic_case')
+
+    for link in _balsamic_case.links:
+        sample = link.sample
+        assert sample.sequenced_at
+        assert 'balsamic' in sample.data_analysis
+    assert not _balsamic_case.analyses
+    assert _balsamic_case.action != 'running'
+
+    return _balsamic_case
 
 
 @pytest.fixture(scope='function')
