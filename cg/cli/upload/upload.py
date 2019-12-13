@@ -34,6 +34,7 @@ def upload(context, family_id):
     context.obj['status'] = Store(context.obj['database'])
     context.obj['housekeeper_api'] = hk.HousekeeperAPI(context.obj)
 
+    context.obj['genotype_api'] = gt.GenotypeAPI(context.obj)
     context.obj['lims_api'] = lims.LimsAPI(context.obj)
     context.obj['tb_api'] = tb.TrailblazerAPI(context.obj)
     context.obj['chanjo_api'] = coverage_app.ChanjoAPI(context.obj)
@@ -61,6 +62,7 @@ def upload(context, family_id):
         madeline_exe=context.obj['madeline_exe'],
         analysis_api=context.obj['analysis_api']
     )
+
 
     if family_id:
         family_obj = context.obj['status'].family(family_id)
@@ -507,3 +509,4 @@ def processed_solved(context):
 
     mutacc_auto_api = mutacc_auto.MutaccAutoAPI(context.obj)
     mutacc_auto_api.import_reads()
+
