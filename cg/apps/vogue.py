@@ -64,5 +64,5 @@ def execute_command(cmd):
     for line in process.stdout:
         yield line.decode("utf-8").strip()
 
-    if check_process_status(process):
+    if check_process_status(process) and process.returncode:
         raise CalledProcessError(returncode=process.returncode, cmd=cmd)
