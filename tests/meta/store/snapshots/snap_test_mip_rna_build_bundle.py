@@ -20,7 +20,7 @@ snapshots['test_build_bundle_rna_no_missing_vpstderr 1'] = {
         },
         {
             'archive': True,
-            'path': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/mip_2019-11-21T14:31:02.log',
+            'path': '/path/to/stuff/rare-disease/cases/case_id/analysis/mip_log/2020-01-28/mip_2020-01-28T13:52:27.log',
             'tags': [
                 'mip-log',
                 'rd-rna'
@@ -39,6 +39,14 @@ snapshots['test_build_bundle_rna_no_missing_vpstderr 1'] = {
             'path': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/case_id_comb.vcf',
             'tags': [
                 'bcftools-combined-vcf',
+                'rd-rna'
+            ]
+        },
+        {
+            'archive': True,
+            'path': '/some/path/rare_disease_test/mip_current_version/case_id/analysis/case_id/blobfish',
+            'tags': [
+                'differential expression',
                 'rd-rna'
             ]
         },
@@ -93,6 +101,30 @@ snapshots['test_build_bundle_rna_no_missing_vpstderr 1'] = {
         {
             'archive': False,
             'path': [
+                '/path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_arriba.tsv'
+            ],
+            'tags': [
+                'fusions',
+                'arriba',
+                'sample_id_1',
+                'rd-rna'
+            ]
+        },
+        {
+            'archive': False,
+            'path': [
+                '/path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_arriba.pdf'
+            ],
+            'tags': [
+                'fusions',
+                'arriba',
+                'sample_id_1',
+                'rd-rna'
+            ]
+        },
+        {
+            'archive': False,
+            'path': [
                 '/path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal_haptc_filtered_ase_bootstr.vcf',
                 '/path/to/stuff/rare-disease/cases/case_id/analysis/files/bar_sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal_haptc_filtered_ase_bootstr.vcf'
             ],
@@ -109,18 +141,6 @@ snapshots['test_build_bundle_rna_no_missing_vpstderr 1'] = {
             ],
             'tags': [
                 'ase-readcounts',
-                'sample_id_1',
-                'rd-rna'
-            ]
-        },
-        {
-            'archive': False,
-            'path': [
-                '/path/to/stuff/rare-disease/cases/case_id/analysis/files/sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal.bam'
-            ],
-            'tags': [
-                'bam',
-                'baserecalibration',
                 'sample_id_1',
                 'rd-rna'
             ]
@@ -162,6 +182,7 @@ snapshots['test_build_bundle_rna_no_missing_vpstderr 1'] = {
             'archive': False,
             'path': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/star-fusion.fusion_predictions.tsv',
             'tags': [
+                'fusions',
                 'star-fusion',
                 'sample_id_1',
                 'rd-rna'
@@ -194,7 +215,7 @@ snapshots['test_get_rna_files 1'] = [
     },
     {
         'archive': True,
-        'path': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/mip_2019-11-21T14:31:02.log',
+        'path': '/path/to/stuff/rare-disease/cases/case_id/analysis/mip_log/2020-01-28/mip_2020-01-28T13:52:27.log',
         'tags': [
             'mip-log',
             'rd-rna'
@@ -213,6 +234,14 @@ snapshots['test_get_rna_files 1'] = [
         'path': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/case_id_comb.vcf',
         'tags': [
             'bcftools-combined-vcf',
+            'rd-rna'
+        ]
+    },
+    {
+        'archive': True,
+        'path': '/some/path/rare_disease_test/mip_current_version/case_id/analysis/case_id/blobfish',
+        'tags': [
+            'differential expression',
             'rd-rna'
         ]
     },
@@ -267,6 +296,30 @@ snapshots['test_get_rna_files 1'] = [
     {
         'archive': False,
         'path': [
+            '/path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_arriba.tsv'
+        ],
+        'tags': [
+            'fusions',
+            'arriba',
+            'sample_id_1',
+            'rd-rna'
+        ]
+    },
+    {
+        'archive': False,
+        'path': [
+            '/path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_arriba.pdf'
+        ],
+        'tags': [
+            'fusions',
+            'arriba',
+            'sample_id_1',
+            'rd-rna'
+        ]
+    },
+    {
+        'archive': False,
+        'path': [
             '/path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal_haptc_filtered_ase_bootstr.vcf',
             '/path/to/stuff/rare-disease/cases/case_id/analysis/files/bar_sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal_haptc_filtered_ase_bootstr.vcf'
         ],
@@ -283,18 +336,6 @@ snapshots['test_get_rna_files 1'] = [
         ],
         'tags': [
             'ase-readcounts',
-            'sample_id_1',
-            'rd-rna'
-        ]
-    },
-    {
-        'archive': False,
-        'path': [
-            '/path/to/stuff/rare-disease/cases/case_id/analysis/files/sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal.bam'
-        ],
-        'tags': [
-            'bam',
-            'baserecalibration',
             'sample_id_1',
             'rd-rna'
         ]
@@ -336,6 +377,7 @@ snapshots['test_get_rna_files 1'] = [
         'archive': False,
         'path': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/star-fusion.fusion_predictions.tsv',
         'tags': [
+            'fusions',
             'star-fusion',
             'sample_id_1',
             'rd-rna'
@@ -367,7 +409,7 @@ snapshots['test_build_bundle_rna 1'] = {
         },
         {
             'archive': True,
-            'path': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/mip_2019-11-21T14:31:02.log',
+            'path': '/path/to/stuff/rare-disease/cases/case_id/analysis/mip_log/2020-01-28/mip_2020-01-28T13:52:27.log',
             'tags': [
                 'mip-log',
                 'rd-rna'
@@ -386,6 +428,14 @@ snapshots['test_build_bundle_rna 1'] = {
             'path': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/case_id_comb.vcf',
             'tags': [
                 'bcftools-combined-vcf',
+                'rd-rna'
+            ]
+        },
+        {
+            'archive': True,
+            'path': '/some/path/rare_disease_test/mip_current_version/case_id/analysis/case_id/blobfish',
+            'tags': [
+                'differential expression',
                 'rd-rna'
             ]
         },
@@ -440,6 +490,30 @@ snapshots['test_build_bundle_rna 1'] = {
         {
             'archive': False,
             'path': [
+                '/path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_arriba.tsv'
+            ],
+            'tags': [
+                'fusions',
+                'arriba',
+                'sample_id_1',
+                'rd-rna'
+            ]
+        },
+        {
+            'archive': False,
+            'path': [
+                '/path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_arriba.pdf'
+            ],
+            'tags': [
+                'fusions',
+                'arriba',
+                'sample_id_1',
+                'rd-rna'
+            ]
+        },
+        {
+            'archive': False,
+            'path': [
                 '/path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal_haptc_filtered_ase_bootstr.vcf',
                 '/path/to/stuff/rare-disease/cases/case_id/analysis/files/bar_sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal_haptc_filtered_ase_bootstr.vcf'
             ],
@@ -456,18 +530,6 @@ snapshots['test_build_bundle_rna 1'] = {
             ],
             'tags': [
                 'ase-readcounts',
-                'sample_id_1',
-                'rd-rna'
-            ]
-        },
-        {
-            'archive': False,
-            'path': [
-                '/path/to/stuff/rare-disease/cases/case_id/analysis/files/sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal.bam'
-            ],
-            'tags': [
-                'bam',
-                'baserecalibration',
                 'sample_id_1',
                 'rd-rna'
             ]
@@ -509,6 +571,7 @@ snapshots['test_build_bundle_rna 1'] = {
             'archive': False,
             'path': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/star-fusion.fusion_predictions.tsv',
             'tags': [
+                'fusions',
                 'star-fusion',
                 'sample_id_1',
                 'rd-rna'

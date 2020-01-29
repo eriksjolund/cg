@@ -12,6 +12,7 @@ snapshots['test_parse_sampleinfo_rna_result_contents 1'] = {
     'case': 'case_id',
     'config_file_path': '/path/to/stuff/rare-disease/cases/case_id/analysis/case_id_config.yaml',
     'date': GenericRepr('datetime.datetime(2019, 11, 21, 14, 31, 2)'),
+    'dea_path': '/some/path/rare_disease_test/mip_current_version/case_id/analysis/case_id/blobfish',
     'is_finished': True,
     'multiqc_html': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/multiqc_report.html',
     'multiqc_json': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/multiqc_data.json',
@@ -19,16 +20,18 @@ snapshots['test_parse_sampleinfo_rna_result_contents 1'] = {
     'qcmetrics_path': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/qcmetrics_file.stub',
     'samples': [
         {
-            'bam': '/path/to/stuff/rare-disease/cases/case_id/analysis/files/sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal.bam',
+            'arriba': [
+                '/path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_arriba.tsv'
+            ],
+            'arriba_report': [
+                '/path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_arriba.pdf'
+            ],
             'bootstrap_vcf': [
                 '/path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal_haptc_filtered_ase_bootstr.vcf',
                 '/path/to/stuff/rare-disease/cases/case_id/analysis/files/bar_sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal_haptc_filtered_ase_bootstr.vcf'
             ],
             'gatk_asereadcounter': [
                 '/path/to/stuff/rare-disease/cases/case_id/analysis/files/sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal_haptc_filtered_ase.csv'
-            ],
-            'gatk_baserecalibration': [
-                '/path/to/stuff/rare-disease/cases/case_id/analysis/files/sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal.bam'
             ],
             'gffcompare_ar': [
                 '/path/to/stuff/rare-disease/cases/case_id/analysis/files/sample_id_1_lanes_1234_trim_star_sorted_merged_strg_gffcmp.gtf'

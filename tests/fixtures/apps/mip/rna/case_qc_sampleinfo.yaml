@@ -31,7 +31,6 @@ recipe:
       path: /path/to/stuff/rare-disease/cases/case_id/analysis/files/multiqc_data.json
   peddy_ar:
     stderr: {}
-  #qccollect_ar: {}
   qccollect_ar: /path/to/stuff/rare-disease/cases/case_id/analysis/files/qcmetrics_file.stub
   varianteffectpredictor:
     path: /path/to/stuff/rare-disease/cases/case_id/analysis/files/case_id_comb_vep.vcf
@@ -141,6 +140,11 @@ sample:
     mother: '0'
     phenotype: unaffected
     recipe:
+      arriba_ar:
+        sample_id_1_lanes_1234_trim_arriba.tsv:
+          path: /path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_arriba.tsv
+          report:
+            path: /path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_arriba.pdf
       bootstrapann:
         sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal_haptc_filtered_ase_bootstr.vcf:
           path: /path/to/stuff/rare-disease/cases/case_id/analysis/files/foo_sample_id_1_lanes_1234_trim_star_sorted_merged_md_splitncigar_brecal_haptc_filtered_ase_bootstr.vcf

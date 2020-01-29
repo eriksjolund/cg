@@ -32,6 +32,10 @@ def get_files_rna(config_data: dict, sampleinfo_data: dict) -> dict:
         'tags': ['bcftools-combined-vcf', 'rd-rna'],
         'archive': True,
     }, {
+        'path': sampleinfo_data['dea_path'],
+        'tags': ['differential expression', 'rd-rna'],
+        'archive': True,
+    }, {
         'path': sampleinfo_data['multiqc_html'],
         'tags': ['multiqc-html', 'rd-rna'],
         'archive': True,
@@ -59,6 +63,16 @@ def get_files_rna(config_data: dict, sampleinfo_data: dict) -> dict:
 
     for sample_data in sampleinfo_data['samples']:
         data.append({
+            'path': sample_data['arriba'],
+            'tags': ['fusions', 'arriba', sample_data['id'], 'rd-rna'],
+            'archive': False,
+        })
+        data.append({
+            'path': sample_data['arriba_report'],
+            'tags': ['fusions', 'arriba', sample_data['id'], 'rd-rna'],
+            'archive': False,
+        })
+        data.append({
             'path': sample_data['bootstrap_vcf'],
             'tags': ['bootstrap-vcf', sample_data['id'], 'rd-rna'],
             'archive': False,
@@ -66,11 +80,6 @@ def get_files_rna(config_data: dict, sampleinfo_data: dict) -> dict:
         data.append({
             'path': sample_data['gatk_asereadcounter'],
             'tags': ['ase-readcounts', sample_data['id'], 'rd-rna'],
-            'archive': False,
-        })
-        data.append({
-            'path': sample_data['gatk_baserecalibration'],
-            'tags': ['bam', 'baserecalibration', sample_data['id'], 'rd-rna'],
             'archive': False,
         })
         data.append({
@@ -90,13 +99,13 @@ def get_files_rna(config_data: dict, sampleinfo_data: dict) -> dict:
         })
         data.append({
             'path': sample_data['star_fusion'],
-            'tags': ['star-fusion', sample_data['id'], 'rd-rna'],
+            'tags': ['fusions', 'star-fusion', sample_data['id'], 'rd-rna'],
             'archive': False,
         })
         data.append({
             'path': sample_data['stringtie_ar'],
             'tags': ['stringtie-ar', sample_data['id'], 'rd-rna'],
             'archive': False,
-            })
+        })
 
     return data
