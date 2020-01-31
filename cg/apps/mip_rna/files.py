@@ -15,7 +15,7 @@ def parse_sampleinfo_rna(data: dict) -> dict:
 
     outdata = {
         'bcftools_merge': data['recipe']['bcftools_merge']['path'],
-        'dea_path': data['recipe']['blobfish']['path'],
+        'dea_path': data['recipe']['blobfish'].get('path') if data['recipe'].get('blobfish') else None,
         'case': case,
         'config_file_path': data['config_file_analysis'],
         'date': data['analysis_date'],
