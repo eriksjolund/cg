@@ -8,7 +8,6 @@ import pytest
 from cg.apps import hk
 from cg.cli import base
 
-
 @pytest.fixture
 def cli_runner():
     """Create a CliRunner"""

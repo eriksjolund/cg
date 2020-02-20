@@ -29,10 +29,9 @@ def microsalt_context(microsalt_store, lims_api, tmpdir, queries_path):
 
 
 @pytest.fixture(scope="function")
-def microsalt_case(analysis_store) -> models.Family:
-    """Case with balsamic data_type"""
-    return analysis_store.microbial_order(ensure_customer(analysis_store), "microsalt_case")
-
+def microsalt_case(analysis_store) -> models.MicrobialOrder:
+    """Case with microsalt data_type"""
+    return analysis_store.microbial_order(ensure_customer(analysis_store).internal_id)
 
 @pytest.fixture(scope="function")
 def microsalt_store(

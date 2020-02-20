@@ -4,6 +4,7 @@ import json
 import logging
 from pathlib import Path
 import subprocess
+import sys
 
 import click
 
@@ -160,16 +161,15 @@ def run(context, dry, config_case, order_id):
 @microsalt.command()
 @click.option(
     "-d",
-    "--dry-run",
-    "dry_run",
+    "--dry",
+    "dry",
     is_flag=True,
     help="Print to console, " "without actualising",
 )
 @click.pass_context
-def start(context: click.Context, dry_run: bool = False):
+def start(context: click.Context, dry: bool = False):
     """Start all cases that are ready for analysis"""
     exit_code = 0
-
     cases = [
         case_obj.internal_id for case_obj in context.obj["db"].cases_to_microsalt_analyze()
     ]
@@ -178,19 +178,7 @@ def start(context: click.Context, dry_run: bool = False):
 
         case_obj = context.obj["db"].microbial_order(case_id)
 
-        if AnalysisAPI.is_dna_only_case(case_obj):
-            LOG.info("%s: start analysis", case_obj.internal_id)
-        else:
-            LOG.warning("%s: contains non-dna samples, skipping", case_obj.internal_id)
-            continue
-
-        priority = (
-            "high"
-            if case_obj.high_priority
-            else ("low" if case_obj.low_priority else "normal")
-        )
-
-        if dry_run:
+        if dry:
             continue
 
         try:

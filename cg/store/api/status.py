@@ -146,7 +146,7 @@ class StatusHandler(BaseHandler):
         order_q = (
             self.MicrobialOrder.query
             .outerjoin(models.Analysis)
-            .join(models.MicrobialOrder.microbial_samples, models.MicrobialSample)
+            .join(models.MicrobialOrder.microbial_samples)
             # 1. Order that has been analysed but now is requested for re-analysing
             # 2. New order that hasn't been analysed yet
             .filter(
@@ -154,9 +154,7 @@ class StatusHandler(BaseHandler):
             )
             .order_by(models.MicrobialOrder.ordered_at)
         )
-
-        orders = [record for record in order_q if self._all_samples_have_sequence_data(
-            record.links)]
+        orders = [record for record in order_q]
 
         return orders[:limit]
     def cases(self,
