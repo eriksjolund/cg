@@ -157,6 +157,52 @@ def run(context, dry, config_case, order_id):
         LOG.info("Starting microSALT! '%s'", " ".join(command))
         subprocess.run(command, shell=True, check=True)
 
+@microsalt.command()
+@click.option(
+    "-d",
+    "--dry-run",
+    "dry_run",
+    is_flag=True,
+    help="Print to console, " "without actualising",
+)
+@click.pass_context
+def start(context: click.Context, dry_run: bool = False):
+    """Start all cases that are ready for analysis"""
+    exit_code = 0
+
+    cases = [
+        case_obj.internal_id for case_obj in context.obj["db"].cases_to_microsalt_analyze()
+    ]
+
+    for case_id in cases:
+
+        case_obj = context.obj["db"].microbial_order(case_id)
+
+        if AnalysisAPI.is_dna_only_case(case_obj):
+            LOG.info("%s: start analysis", case_obj.internal_id)
+        else:
+            LOG.warning("%s: contains non-dna samples, skipping", case_obj.internal_id)
+            continue
+
+        priority = (
+            "high"
+            if case_obj.high_priority
+            else ("low" if case_obj.low_priority else "normal")
+        )
+
+        if dry_run:
+            continue
+
+        try:
+            context.invoke(microsalt, priority=priority, case_id=case_obj.internal_id)
+        except MicrosaltStartError as error:
+            LOG.exception(error.message)
+            exit_code = 1
+        except LimsDataError as error:
+            LOG.exception(error.message)
+            exit_code = 1
+    sys.exit(exit_code)
+
 
 microsalt.add_command(config_case)
 microsalt.add_command(deliver_cmd)

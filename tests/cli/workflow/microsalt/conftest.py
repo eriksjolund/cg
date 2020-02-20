@@ -7,7 +7,6 @@ import pytest
 from cg.meta.microsalt.lims import LimsMicrosaltAPI
 from cg.store import Store, models
 
-
 @pytest.fixture(scope="function")
 def queries_path(tmpdir):
     """ The path where to store the case-configs """
@@ -15,7 +14,7 @@ def queries_path(tmpdir):
 
 
 @pytest.fixture(scope="function")
-def base_context(microsalt_store, lims_api, tmpdir, queries_path):
+def microsalt_context(microsalt_store, lims_api, tmpdir, queries_path):
     """ The click context for the microsalt cli """
     microsalt_api = LimsMicrosaltAPI(lims=lims_api)
     return {
@@ -27,6 +26,12 @@ def base_context(microsalt_store, lims_api, tmpdir, queries_path):
             "binary_path": "/bin/true",
         },
     }
+
+
+@pytest.fixture(scope="function")
+def microsalt_case(analysis_store) -> models.Family:
+    """Case with balsamic data_type"""
+    return analysis_store.microbial_order(ensure_customer(analysis_store), "microsalt_case")
 
 
 @pytest.fixture(scope="function")

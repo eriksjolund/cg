@@ -139,6 +139,26 @@ class StatusHandler(BaseHandler):
 
         return families[:limit]
 
+    def cases_to_microsalt_analyze(self, limit: int = 50):
+        """Fetch orders without analyses where all samples are sequenced."""
+
+        # There are two cases when a sample should be analysed:
+        order_q = (
+            self.MicrobialOrder.query
+            .outerjoin(models.Analysis)
+            .join(models.MicrobialOrder.microbial_samples, models.MicrobialSample)
+            # 1. Order that has been analysed but now is requested for re-analysing
+            # 2. New order that hasn't been analysed yet
+            .filter(
+                models.Analysis.created_at.is_(None)
+            )
+            .order_by(models.MicrobialOrder.ordered_at)
+        )
+
+        orders = [record for record in order_q if self._all_samples_have_sequence_data(
+            record.links)]
+
+        return orders[:limit]
     def cases(self,
               progress_tracker=None,
               internal_id=None,

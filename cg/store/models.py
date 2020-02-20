@@ -161,7 +161,8 @@ class Analysis(Model):
     is_primary = Column(types.Boolean, default=False)
 
     created_at = Column(types.DateTime, default=dt.datetime.now, nullable=False)
-    family_id = Column(ForeignKey("family.id", ondelete="CASCADE"), nullable=False)
+    family_id = Column(ForeignKey("family.id", ondelete="CASCADE"), nullable=True)
+    microbial_order_id = Column(ForeignKey("microbial_order.id", ondelete="CASCADE"), nullable=True)
 
     def __str__(self):
         return f"{self.family.internal_id} | {self.completed_at.date()}"
@@ -430,6 +431,9 @@ class MicrobialOrder(Model):
     ordered_at = Column(types.DateTime, nullable=False)
 
     customer_id = Column(ForeignKey("customer.id", ondelete="CASCADE"), nullable=False)
+    analyses = orm.relationship(
+        "Analysis", backref="microbial_order", order_by="-Analysis.completed_at"
+    )
     microbial_samples = orm.relationship(
         "MicrobialSample",
         backref="microbial_order",
