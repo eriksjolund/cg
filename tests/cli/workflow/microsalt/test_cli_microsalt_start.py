@@ -19,11 +19,10 @@ def test_dry(cli_runner, microsalt_context):
 def test_microsalt_case_included(cli_runner, microsalt_context, microsalt_case, caplog):
     """Test command with a microsalt case"""
 
-    # GIVEN a case that is ready for microSALT analysis
-    #   -> has a sample that is sequenced and has a
+    # GIVEN a case that is ready for microSALT analysis -> has a sample that is sequenced and has a
     # microsalt data_type
-    for link in microsalt_case.microbial_samples:
-        sample = link.sample
+    assert microsalt_case
+    for sample in microsalt_case.microbial_samples:
         assert sample.sequenced_at
         assert "microsalt" in sample.data_analysis
     assert not microsalt_case.analyses
@@ -37,7 +36,9 @@ def test_microsalt_case_included(cli_runner, microsalt_context, microsalt_case, 
     assert microsalt_case.internal_id in caplog.text
 
 
-def test_microsalt_only_case_excluded(cli_runner, microsalt_context, microsalt_case, caplog):
+def test_microsalt_only_case_excluded(
+    cli_runner, microsalt_context, microsalt_case, caplog
+):
     """Test command with a microsalt case"""
 
     # GIVEN a case that is ready for microSALT analysis

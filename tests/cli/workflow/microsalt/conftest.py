@@ -7,6 +7,7 @@ import pytest
 from cg.meta.microsalt.lims import LimsMicrosaltAPI
 from cg.store import Store, models
 
+
 @pytest.fixture(scope="function")
 def queries_path(tmpdir):
     """ The path where to store the case-configs """
@@ -29,9 +30,11 @@ def microsalt_context(microsalt_store, lims_api, tmpdir, queries_path):
 
 
 @pytest.fixture(scope="function")
-def microsalt_case(analysis_store) -> models.MicrobialOrder:
+def microsalt_case(microsalt_store, microbial_order_id) -> models.MicrobialOrder:
     """Case with microsalt data_type"""
-    return analysis_store.microbial_order(ensure_customer(analysis_store).internal_id)
+
+    return microsalt_store.microbial_order(microbial_order_id)
+
 
 @pytest.fixture(scope="function")
 def microsalt_store(
@@ -81,7 +84,7 @@ def add_microbial_sample(
         internal_id=internal_id,
     )
 
-    microbial_sample.microbial_order_id = microbial_order.id
+    microbial_sample.microbial_order = microbial_order
     store.add_commit(microbial_sample)
     return microbial_sample
 
