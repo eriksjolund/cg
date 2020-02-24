@@ -38,3 +38,13 @@ class VogueAPI:
         # Execute command and print its stdout+stderr as it executes
         for line in self.process.stderr_lines():
             LOG.info("vogue output: %s", line)
+
+    def load_bioinfo_raw(self, options):
+        load_call = ["load", "bioinfo", "raw", options]
+        self.process.run_command(load_call)
+
+        # Execute command and print its stdout+stderr as it executes
+        for line in self.process.stderr_lines():
+            LOG.info("vogue output: %s", line)
+
+    

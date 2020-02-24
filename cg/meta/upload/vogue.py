@@ -41,3 +41,19 @@ class UploadVogueAPI:
             )
 
         self.vogue_api.load_apptags(apptags_for_vogue)
+
+    
+    def load_bioinfo(self, family_id):
+        """"""
+        lims_ids = self.store.family_samples(family_id)
+        case = family_id
+        workflow_verssion = ??
+        #check all samples same analysis
+        for lims_id in lims_ids:
+            workflow_name = self.store.sample(lims_id)
+
+        options = {'lims_ids':lims_ids...}
+
+        self.vogue_api.load_bioinfo_raw(options)
+
+

@@ -54,3 +54,16 @@ def apptags(context):
     )
 
     context.obj["vogue_upload_api"].load_apptags()
+
+@vogue.command(
+    "bioinfo", short_help="Getting bioinfos to the trending database."
+)
+@click.pass_context
+def bioinfo(context):
+    """Loading apptags from status db to the trending database"""
+
+    click.echo(
+        click.style("----------------- bioinfo TAGS -----------------------")
+    )
+
+    context.obj["vogue_upload_api"].load_apptags()
