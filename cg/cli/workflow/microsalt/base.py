@@ -175,8 +175,8 @@ def start(context: click.Context, dry: bool = False):
     ]
 
     for case_id in cases:
-
         case_obj = context.obj["db"].microbial_order(case_id)
+        LOG.info("%s: start analysis", case_obj.internal_id)
 
         if dry:
             continue

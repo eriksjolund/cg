@@ -35,6 +35,10 @@ def microsalt_case(microsalt_store, microbial_order_id) -> models.MicrobialOrder
 
     return microsalt_store.microbial_order(microbial_order_id)
 
+@pytest.fixture(scope="function")
+def mip_case(analysis_store) -> models.Family:
+    """Case with mip data_type, used to prove negatives"""
+    return analysis_store.find_family(ensure_customer(analysis_store), "mip_case")
 
 @pytest.fixture(scope="function")
 def microsalt_store(
@@ -63,11 +67,11 @@ def microbial_order_id():
     """ Define a name for a microbial order """
     return "microbial_order_test"
 
-
 def add_microbial_sample(
     store,
     name="microbial_name_test",
     priority="research",
+    sequenced_at=datetime.min,
     internal_id="microbial_sample_id",
     order_internal_id="microbial_order_id",
 ) -> models.MicrobialSample:
@@ -82,6 +86,8 @@ def add_microbial_sample(
         organism=organism,
         reference_genome=organism.reference_genome,
         internal_id=internal_id,
+        sequenced_at=sequenced_at,
+        data_analysis="microsalt"
     )
 
     microbial_sample.microbial_order = microbial_order
