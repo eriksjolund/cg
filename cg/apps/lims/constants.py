@@ -31,6 +31,87 @@ PROP2UDF = {
     'verified_organism': 'Verified organism',
 }
 
+MASTER_STEPS_UDFS_VOGUE = { ##!!!!!
+    'received': {
+        'steps' : ['CG002 - Reception Control (Dev)', 
+                   'CG002 - Reception Control', 
+                   'Reception Control TWIST v1',
+                   'Reception Control no placement v1',
+                   'Reception Control (RNA) v1'],
+        'date_udf' : 'date arrived at clinical genomics'
+    },
+    'prepared': {
+        'steps': ['CG002 - Aggregate QC (Library Validation) (Dev)',
+                  'CG002 - Aggregate QC (Library Validation)',
+                  'Aggregate QC (Library Validation) TWIST v1',
+                  'Aggregate QC (Library Validation) (RNA) v2',
+                  'Aggregate QC (Library Validation)']
+    },
+    'delivery': {
+        'steps': ['CG002 - Delivery', 'Delivery v1'],
+        'date_udf': 'Date delivered'
+    },
+    'sequenced': {
+        'steps': ['CG002 - Illumina Sequencing (HiSeq X)',
+                  'CG002 - Illumina Sequencing (Illumina SBS)',
+                  'AUTOMATED - NovaSeq Run'],
+        'date_udf': 'Finish Date',
+        'nova_seq': ['AUTOMATED - NovaSeq Run'],
+        'q30r1_udf': '% Bases >=Q30 R1',
+        'q30r2_udf': '% Bases >=Q30 R2'
+    },
+    'concentration_and_nr_defrosts' : {
+        'lot_nr_step': 'CG002 - End repair Size selection A-tailing and Adapter ligation (TruSeq PCR-free DNA)',
+        'concentration_step': 'CG002 - Aggregate QC (Library Validation)',
+        'lot_nr_udf': 'Lot no: TruSeq DNA PCR-Free Sample Prep Kit',
+        'concentration_udf': 'Concentration (nM)',
+        'apptags': ['WGSPCF', 'WGTPCF', 'WGLPCF']
+    },
+    'final_conc_and_amount_dna': {
+        'amount_udf': 'Amount (ng)',
+        'concentration_udf': 'Concentration (nM)',
+        'concentration_step': 'CG002 - Aggregate QC (Library Validation)',
+        'amount_step': 'CG002 - Aggregate QC (DNA)',
+        'apptags': ['WGSLIF', 'WGTLIF', 'WGLLIF']
+    },
+    'microbial_library_concentration': {
+        'concentration_step': 'CG002 - Aggregate QC (Library Validation)',
+        'concentration_udf': 'Concentration (nM)',
+        'apptags': 'NX'
+        },
+    'library_size_pre_hyb': { 
+        'TWIST': {
+            'size_step': ['pool samples TWIST v1'],
+            'stage_udf': {'3999': 'Size (bp)', 
+                          '2176': 'Average Size (bp)'}
+        },
+        'SureSelect' : {
+            'size_step': ['CG002 - Amplify Adapter-Ligated Library (SS XT)'],
+            'size_udf': 'Size (bp)',
+            'apptags': ['EXO', 'EFT', 'PAN', 'PAL']}
+        },
+    'library_size_post_hyb': {
+        'TWIST': {
+            'size_step': ['CG002 - Sort HiSeq Samples'],
+            'stage_udf': {'4005' : 'Size (bp)', 
+                          '2182' : 'Average Size (bp)'}
+        },
+        'SureSelect': {
+            'size_step': ['CG002 - Amplify Captured Libraries to Add Index Tags (SS XT)'],
+            'size_udf': 'Size (bp)',
+            'apptags': ['EXO', 'EFT', 'PAN', 'PAL']}
+    },
+    'reagent_labels': {
+        'steps': {'bcl': ['Bcl Conversion & Demultiplexing (Nova Seq)'],
+                  'define': ['Define Run Format and Calculate Volumes (Nova Seq)'],
+                  'pre_bcl': ['STANDARD Prepare for Sequencing (Nova Seq)']},
+        'udfs': {'reads' : '# Reads',
+                  'target_reads': 'Reads to sequence (M)'},
+        'exclue_tags': ['RM','EX','PA']  
+        ## EX and PA should be included later. Fetching fraction from Poos Samples Twist 1
+}}
+
+
 MASTER_STEPS_UDFS = {
     'received_step': {
         'CG002 - Reception Control (Dev)': 'date arrived at clinical genomics',
