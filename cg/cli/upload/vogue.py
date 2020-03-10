@@ -4,7 +4,7 @@ import logging
 import click
 
 from cg.meta.upload.vogue import UploadVogueAPI
-from cg.apps import vogue as vogue_api, gt
+from cg.apps import vogue as vogue_api, gt, lims
 
 LOG = logging.getLogger(__name__)
 
@@ -21,6 +21,7 @@ def vogue(context):
         genotype_api=gt.GenotypeAPI(context.obj),
         vogue_api=context.obj["vogue_api"],
         store=context.obj["status"],
+        lims_api=lims.LimsAPI(context.obj)
     )
 
 
@@ -78,5 +79,18 @@ def samples(context, days: int):
     """Loading samples from lims to the trending database"""
 
     click.echo(click.style("----------------- SAMPLES -----------------------"))
+    
+    context.obj["vogue_upload_api"].load_samples(days=int(days))
 
-    context.obj["vogue_upload_api"].load_samples(days=days)
+
+@vogue.command("sample", short_help="Getting sample data from lims.")
+@click.option(
+    "-i", "--lims_id", required="True", help="Sample lims id",
+)
+@click.pass_context
+def sample(context, lims_id: str):
+    """Loading samples from lims to the trending database"""
+
+    click.echo(click.style("----------------- SAMPLE -----------------------"))
+    
+    context.obj["vogue_upload_api"].load_sample(lims_sample_id=lims_id)

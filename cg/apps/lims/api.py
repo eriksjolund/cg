@@ -9,7 +9,7 @@ import operator
 
 
 from cg.exc import LimsDataError
-from .constants import PROP2UDF, MASTER_STEPS_UDFS, MASTER_STEPS_UDFS_VOGUE, PROCESSES
+from .constants import PROP2UDF, MASTER_STEPS_UDFS, PROCESSES
 from .order import OrderHandler
 
 # fixes https://github.com/Clinical-Genomics/servers/issues/30
@@ -50,6 +50,10 @@ class LimsAPI(Lims, OrderHandler):
         data = self._export_sample(lims_sample)
         return data
 
+    def lims_sample(self, lims_id: str):
+        """Fetch a sample from the LIMS database."""
+        return Sample(self, id=lims_id)
+
     def samples_in_pools(self, pool_name, projectname):
         return self.get_samples(
             udf={"pool name": str(pool_name)}, projectname=projectname
@@ -82,7 +86,7 @@ class LimsAPI(Lims, OrderHandler):
             if udfs.get("Gene List")
             else None,
             "priority": udfs.get("priority"),
-            "received": self.get_received_date(lims_sample.id),
+            "received": self.get_received_date_obs(lims_sample.id),
             "application": udfs.get("Sequencing Analysis"),
             "application_version": (
                 int(udfs["Application Tag Version"])
@@ -97,7 +101,7 @@ class LimsAPI(Lims, OrderHandler):
         """Get data from a LIMS artifact."""
         return {"id": lims_artifact.id, "name": lims_artifact.name}
 
-    def get_received_date(self, lims_id: str) -> str:
+    def get_received_date_obs(self, lims_id: str) -> str:
         """Get the date when a sample was received."""
 
         step_names_udfs = MASTER_STEPS_UDFS["received_step"]
@@ -107,7 +111,7 @@ class LimsAPI(Lims, OrderHandler):
 
         return received_date
 
-    def get_prepared_date(self, lims_id: str) -> dt.datetime:
+    def get_prepared_date_obs(self, lims_id: str) -> dt.datetime:
         """Get the date when a sample was prepared in the lab."""
 
         step_names_udfs = MASTER_STEPS_UDFS["prepared_step"]
@@ -127,7 +131,7 @@ class LimsAPI(Lims, OrderHandler):
 
         return prepared_date if prepared_dates else None
 
-    def get_delivery_date(self, lims_id: str) -> dt.date:
+    def get_delivery_date_obs(self, lims_id: str) -> dt.date:
         """Get delivery date for a sample."""
 
         step_names_udfs = MASTER_STEPS_UDFS["delivery_step"]
@@ -143,7 +147,7 @@ class LimsAPI(Lims, OrderHandler):
 
         return delivered_date
 
-    def get_sequenced_date(self, lims_id: str) -> dt.date:
+    def get_sequenced_date_obs(self, lims_id: str) -> dt.date:
         """Get the date when a sample was sequenced."""
         novaseq_process = PROCESSES["sequenced_date"]
 
@@ -405,93 +409,95 @@ class LimsAPI(Lims, OrderHandler):
 
         return dates
 
-    def str_to_datetime(self, date: str)-> dt:
+    def _str_to_datetime(self, date: str)-> dt:
         if date is None:
             return None
-        return dt.strptime(date, '%Y-%m-%d')
+        return dt.datetime.strptime(date, '%Y-%m-%d')
 
 
-    def get_sequenced_date(self, sample: Sample, lims: Lims)-> dt:
+    def get_sequenced_date(self, sample: Sample)-> dt:
         """Get the date when a sample passed sequencing.
         
         This will return the last time that the sample passed sequencing.
         """
 
-        process_types = MASTER_STEPS_UDFS['sequenced']['steps']
-        date_udf = MASTER_STEPS_UDFS['sequenced']['date_udf']
+        process_types = MASTER_STEPS_UDFS['sequenced_step']
 
         sample_udfs = sample.udf.get( 'Passed Sequencing QC')
         if not sample_udfs:
             return None
         final_date = None
-        # Get the last atrtifact
-        artifact = get_output_artifact(process_types=process_types, lims_id=sample.id, lims=lims, last=True)
+
+        artifact = self._get_output_artifact(process_types=process_types.keys(), 
+                                             lims_id=sample.id, last=True)
         if artifact:
-            final_date = artifact.parent_process.udf.get(date_udf)
+            parent_process = artifact.parent_process
+            print(process_types[parent_process.type.name])
+            final_date = parent_process.udf.get(process_types[parent_process.type.name]['date_udf'])
             if final_date:
-                final_date = dt.combine(final_date, time.min)
+                final_date = dt.datetime.combine(final_date, dt.time.min)
             else:
-                final_date = str_to_datetime(artifact.parent_process.date_run)
+                final_date = self._str_to_datetime(artifact.parent_process.date_run)
             
 
         return final_date
         
 
-    def get_received_date(self, sample: Sample, lims: Lims)-> dt:
+    def get_received_date(self, sample: Sample)-> dt:
         """Get the date when a sample was received.
         """
 
-        process_types = MASTER_STEPS_UDFS['received']['steps']
-        udf = MASTER_STEPS_UDFS['received']['date_udf']
-        processes = lims.get_processes(type=process_types, inputartifactlimsid=sample.artifact.id)
+        process_types = MASTER_STEPS_UDFS['received_step']
+        processes = self.get_processes(type=process_types.keys(), inputartifactlimsid=sample.artifact.id)
         if not processes:
             return None
         first_process = processes[0]
         for process in processes:
             if process.date_run < first_process.date_run:
                 first_process=processes
-        date_arrived = first_process.udf.get(udf)
+        date_udf = process_types[first_process.type.name]['date_udf']
+        date_arrived = first_process.udf.get(date_udf)
         if date_arrived:
             # We need to convert datetime.date to datetime.datetime
-            datetime_arrived = str_to_datetime(date_arrived.isoformat())
+            datetime_arrived = self._str_to_datetime(date_arrived.isoformat())
         else:
             date_arrived = first_process.date_run
-            datetime_arrived = str_to_datetime(date_arrived)
+            datetime_arrived = self._str_to_datetime(date_arrived)
 
         return datetime_arrived 
 
-    def get_prepared_date(self, sample: Sample, lims: Lims)-> dt:
+    def get_prepared_date(self, sample: Sample)-> dt:
         """Get the first date when a sample was prepared in the lab.
         """
-        process_types = MASTER_STEPS_UDFS['prepared']['steps']
+        process_types = MASTER_STEPS_UDFS['prepared_step']
 
-        artifact = get_output_artifact(process_types=process_types, lims_id=sample.id, lims=lims, last=False)
+        artifact = self._get_output_artifact(process_types=process_types, lims_id=sample.id, last=False)
 
         prepared_date = None
         if artifact:
-            prepared_date = str_to_datetime(artifact.parent_process.date_run)
+            prepared_date = self._str_to_datetime(artifact.parent_process.date_run)
 
         return prepared_date
 
-    def get_delivery_date(self, sample: Sample, lims: Lims)-> dt:
+    def get_delivery_date(self, sample: Sample)-> dt:
         """Get delivery date for a sample.
         
         This will return the first time a sample was delivered
         """
 
-        process_types = MASTER_STEPS_UDFS['delivery']['steps']
-        udf = MASTER_STEPS_UDFS['delivery']['date_udf']
+        process_types = MASTER_STEPS_UDFS['delivery_step']
         
-        artifact = get_output_artifact(process_types=process_types, lims_id=sample.id, lims=lims, last=False)
+        artifact = self._get_output_artifact(process_types=process_types.keys(), lims_id=sample.id, last=False)
         delivery_date = None
         
         art_date = None
         if artifact:
-            art_date = artifact.parent_process.udf.get(udf)
+            parent_process = artifact.parent_process
+            art_date = parent_process.udf.get(process_types[parent_process.type.name]['date_udf'])
         
         if art_date:
             # We need to convert datetime.date to datetime.datetime
-            delivery_date = str_to_datetime(art_date.isoformat())
+            delivery_date = self._str_to_datetime(art_date.isoformat())
 
         return delivery_date
 
@@ -506,18 +512,18 @@ class LimsAPI(Lims, OrderHandler):
 
         return days
 
-    def get_output_artifact(self, process_types: list, lims_id: str, lims: Lims, last: bool = True) -> Artifact:
+    def _get_output_artifact(self, process_types: list, lims_id: str, last: bool = True) -> Artifact:
         """Returns the output artifact related to lims_id and the step that was first/latest run.
         
         If last = False return the first artifact
         """
-        artifacts = lims.get_artifacts(samplelimsid = lims_id, process_type = process_types)
+        artifacts = self.get_artifacts(samplelimsid = lims_id, process_type = process_types)
         
         artifact = None
         date = None
         for art in artifacts:
             # Get the date of the artifact
-            new_date = str_to_datetime(art.parent_process.date_run)
+            new_date = self._str_to_datetime(art.parent_process.date_run)
             if not new_date:
                 continue
             # If this is the first artifact we initialise the variables
@@ -540,11 +546,11 @@ class LimsAPI(Lims, OrderHandler):
         return artifact
 
 
-    def get_latest_input_artifact(self, process_type: str, lims_id: str, lims: Lims) -> Artifact:
+    def _get_latest_input_artifact(self, process_type: str, lims_id: str) -> Artifact:
         """Returns the input artifact related to lims_id and the step that was latest run."""
 
         latest_input_artifact = None
-        artifacts = lims.get_artifacts(samplelimsid = lims_id, process_type = process_type) 
+        artifacts = self.get_artifacts(samplelimsid = lims_id, process_type = process_type) 
         # Make a list of tuples (<date the artifact was generated>, <artifact>): 
         date_art_list = list(set([(a.parent_process.date_run, a) for a in artifacts]))
         if date_art_list:
@@ -561,7 +567,7 @@ class LimsAPI(Lims, OrderHandler):
         return latest_input_artifact
 
 
-    def get_concentration_and_nr_defrosts(self, application_tag: str, lims_id: str, lims: Lims) -> dict:
+    def get_concentration_and_nr_defrosts(self, application_tag: str, lims_id: str) -> dict:
         """Get concentration and nr of defrosts for wgs illumina PCR-free samples.
         Find the latest artifact that passed through a concentration_step and get its 
         concentration_udf. --> concentration
@@ -582,21 +588,21 @@ class LimsAPI(Lims, OrderHandler):
         concentration_udf = MASTER_STEPS_UDFS['concentration_and_nr_defrosts']['concentration_udf']
 
         return_dict = {}
-        concentration_art = get_latest_input_artifact(concentration_step, lims_id, lims)
+        concentration_art = self._get_latest_input_artifact(concentration_step, lims_id)
         if concentration_art:
             concentration = concentration_art.udf.get(concentration_udf)
             lotnr = concentration_art.parent_process.udf.get(lot_nr_udf)
-            this_date = str_to_datetime(concentration_art.parent_process.date_run)
+            this_date = self._str_to_datetime(concentration_art.parent_process.date_run)
 
             # Ignore if multiple lot numbers:
             if lotnr and len(lotnr.split(',')) == 1 and len(lotnr.split(' ')) == 1:
-                all_defrosts = lims.get_processes(type = lot_nr_step, udf = {lot_nr_udf : lotnr})
+                all_defrosts = self.get_processes(type = lot_nr_step, udf = {lot_nr_udf : lotnr})
                 defrosts_before_this_process = []
 
                 # Find the dates for all processes where the lotnr was used (all_defrosts),
                 # and pick the once before or equal to this_date
                 for defrost in all_defrosts:
-                    if defrost.date_run and str_to_datetime(defrost.date_run) <= this_date:
+                    if defrost.date_run and self._str_to_datetime(defrost.date_run) <= this_date:
                         defrosts_before_this_process.append(defrost)
 
                 nr_defrosts = len(defrosts_before_this_process)
@@ -607,7 +613,7 @@ class LimsAPI(Lims, OrderHandler):
         return return_dict
 
 
-    def get_final_conc_and_amount_dna(self, application_tag: str, lims_id: str, lims: Lims) -> dict:
+    def get_final_conc_and_amount_dna(self, application_tag: str, lims_id: str) -> dict:
         """Find the latest artifact that passed through a concentration_step and get its 
         concentration. Then go back in history to the latest amount_step and get the amount."""
 
@@ -623,14 +629,14 @@ class LimsAPI(Lims, OrderHandler):
         concentration_step = MASTER_STEPS_UDFS['final_conc_and_amount_dna']['concentration_step']
         amount_step = MASTER_STEPS_UDFS['final_conc_and_amount_dna']['amount_step']
 
-        concentration_art = get_latest_input_artifact(concentration_step, lims_id, lims)
+        concentration_art = self._get_latest_input_artifact(concentration_step, lims_id)
         if concentration_art:
             amount_art = None
             step = concentration_art.parent_process
             # Go back in history untill we get to an output artifact from the amount_step
             while step and not amount_art:
-                art = get_latest_input_artifact(step.type.name, lims_id, lims)
-                if amount_step in [p.type.name for p in lims.get_processes(inputartifactlimsid=art.id)]:
+                art = self._get_latest_input_artifact(step.type.name, lims_id)
+                if amount_step in [p.type.name for p in self.get_processes(inputartifactlimsid=art.id)]:
                     amount_art = art
                 step = art.parent_process
             
@@ -641,7 +647,7 @@ class LimsAPI(Lims, OrderHandler):
         return return_dict
 
 
-    def get_microbial_library_concentration(self, application_tag: str, lims_id: str, lims: Lims) -> float:
+    def get_microbial_library_concentration(self, application_tag: str, lims_id: str) -> float:
         """Check only samples with mictobial application tag.
         Get concentration_udf from concentration_step."""
 
@@ -654,7 +660,7 @@ class LimsAPI(Lims, OrderHandler):
         concentration_step = MASTER_STEPS_UDFS['microbial_library_concentration']['concentration_step']
         concentration_udf = MASTER_STEPS_UDFS['microbial_library_concentration']['concentration_udf']
 
-        concentration_art = get_latest_input_artifact(concentration_step, lims_id, lims)
+        concentration_art = self._get_latest_input_artifact(concentration_step, lims_id)
 
         if concentration_art:
             return concentration_art.udf.get(concentration_udf)
@@ -663,7 +669,7 @@ class LimsAPI(Lims, OrderHandler):
 
 
 
-    def get_library_size(self, app_tag: str, lims_id: str, lims: Lims, workflow: str, hyb_type: str) -> int:
+    def get_library_size(self, app_tag: str, lims_id: str, workflow: str, hyb_type: str) -> int:
         """Getting the udf Size (bp) that in fact is set on the aggregate qc librar validation step.
         But since the same qc protocol is used both for pre-hyb and post-hyb, there is no way to 
         distiguish from within the aggregation step, wether it is pre-hyb or post-hyb qc. 
@@ -680,9 +686,9 @@ class LimsAPI(Lims, OrderHandler):
 
         if workflow == 'TWIST':
             stage_udfs = MASTER_STEPS_UDFS[hyb_type][workflow].get('stage_udf')
-            out_art=get_output_artifact(size_steps, lims_id, lims, last=True)
+            out_art=self._get_output_artifact(size_steps, lims_id, last=True)
             if out_art:
-                sample=Sample(lims, id=lims_id)
+                sample = Sample(self, id=lims_id)
                 for inart in out_art.parent_process.all_inputs():
                     stage = inart.workflow_stages[0].id
                     if sample in inart.samples and stage in stage_udfs:
@@ -691,7 +697,7 @@ class LimsAPI(Lims, OrderHandler):
         elif workflow == 'SureSelect':
             if not app_tag or app_tag[0:3] not in MASTER_STEPS_UDFS[hyb_type][workflow]['apptags']:
                 return None
-            size_art = get_output_artifact(size_steps, lims_id, lims, last=True)
+            size_art = self._get_output_artifact(size_steps, lims_id, last=True)
             if size_art:
                 size_udf = MASTER_STEPS_UDFS[hyb_type][workflow].get('size_udf')
                 return size_art.udf.get(size_udf)
