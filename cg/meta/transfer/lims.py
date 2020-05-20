@@ -214,6 +214,10 @@ class TransferLims(object):
                 if "404: Sample not found: " in error.__str__():
                     LOG.warning("%s: Could not find sample in LIMS", internal_id)
                     continue
+            except KeyError as error:
+                if "Other species" in error.__str__():
+                    LOG.warning("%s: Could not 'Other species' on sample in LIMS", internal_id)
+                    continue
 
             organism_other = self.status.organism(lims_other_organism)
 
