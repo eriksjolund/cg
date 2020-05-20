@@ -200,6 +200,8 @@ class TransferLims(object):
         for microbial_sample_obj in microbial_samples:
             internal_id = microbial_sample_obj.internal_id
 
+            LOG.debug("Processing: %s", internal_id)
+
             if not microbial_sample_obj.organism.name == "other":
                 LOG.debug(
                     f"Skipping sample with organism: {microbial_sample_obj.organism.name}")
