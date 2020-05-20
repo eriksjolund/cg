@@ -202,7 +202,12 @@ class TransferLims(object):
 
             LOG.debug("Processing: %s", internal_id)
 
-            if not microbial_sample_obj.organism.name == "other":
+            if not microbial_sample_obj.organism:
+                LOG.warning(
+                    f"{internal_id} Skipping sample without organism")
+                continue
+
+            if microbial_sample_obj.organism and not microbial_sample_obj.organism.name == "other":
                 LOG.debug(
                     f"{internal_id} Skipping sample with organism: {microbial_sample_obj.organism.name}")
                 continue
