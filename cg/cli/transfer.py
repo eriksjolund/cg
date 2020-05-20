@@ -78,9 +78,9 @@ def microbials(context, status):
 
 @transfer.command()
 @click.option(
-    "-s", "--signature", help="User signature")
+    "-s", "--signature", help="User signature", required=True)
 @click.pass_context
-def transfer_microbial_other_organisms(context, signature):
+def microbial_other_organisms(context, signature):
     """
     Update microbial samples with other
     from LIMS.

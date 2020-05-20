@@ -2,6 +2,7 @@ import datetime
 from enum import Enum
 import logging
 
+import requests
 from cg.store import Store
 from cg.apps.lims import LimsAPI
 
@@ -199,13 +200,18 @@ class TransferLims(object):
         for microbial_sample_obj in microbial_samples:
             internal_id = microbial_sample_obj.internal_id
 
-            if not microbial_samples.organism.name == "other":
+            if not microbial_sample_obj.organism.name == "other":
                 LOG.debug(
-                    f"skipping sample with organism: {microbial_samples.organism.name}")
+                    f"skipping sample with organism: {microbial_sample_obj.organism.name}")
                 continue
 
-            lims_other_organism = self.lims.get_sample_value_from_prop(
-                microbial_sample_obj.internal_id, "organism_other")
+            try:
+                lims_other_organism = self.lims.get_sample_value_from_prop(
+                    internal_id, "organism_other")
+            except requests.exceptions.HTTPError as error:
+                if "404: Sample not found: " in error.__str__():
+                    LOG.warning("Could not find sample in LIMS")
+                    continue
 
             organism_other = self.status.organism(lims_other_organism)
 
@@ -219,7 +225,7 @@ class TransferLims(object):
 
             timestamp = str(datetime.datetime.now())[:-10]
             new_comment = (f"{timestamp}: Organism changed from other to"
-                           f" {lims_other_organism} by {signature}")
+                           f" {lims_other_organism}/{signature}")
             microbial_sample_obj.comment = new_comment + (microbial_sample_obj.comment or "")
             microbial_sample_obj.organism = organism_other
             self.status.commit()
