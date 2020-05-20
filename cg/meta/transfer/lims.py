@@ -202,19 +202,23 @@ class TransferLims(object):
 
             LOG.debug("Processing: %s", internal_id)
 
-            if not microbial_sample_obj.organism:
-                LOG.warning(
-                    f"{internal_id} Skipping sample without organism")
-                continue
-
-            if microbial_sample_obj.organism and not microbial_sample_obj.organism.name == "other":
+            if microbial_sample_obj.organism and not microbial_sample_obj.organism.name \
+                                                     == "other":
                 LOG.debug(
-                    f"{internal_id} Skipping sample with organism: {microbial_sample_obj.organism.name}")
+                    f"{internal_id} Skipping sample with organism: "
+                    f"{microbial_sample_obj.organism.name}")
                 continue
 
             try:
-                lims_other_organism = self.lims.get_sample_value_from_prop(
-                    internal_id, "organism_other")
+                if not microbial_sample_obj.organism:
+                    LOG.warning(
+                        f"{internal_id}: sample without organism")
+
+                    lims_other_organism = self.lims.get_sample_value_from_prop(
+                        internal_id, "organism")
+                else:
+                    lims_other_organism = self.lims.get_sample_value_from_prop(
+                        internal_id, "organism_other")
             except requests.exceptions.HTTPError as error:
                 if "404: Sample not found: " in error.__str__():
                     LOG.warning("%s: Could not find sample in LIMS", internal_id)
