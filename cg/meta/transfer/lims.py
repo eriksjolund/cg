@@ -200,9 +200,11 @@ class TransferLims(object):
         for microbial_sample_obj in microbial_samples:
             internal_id = microbial_sample_obj.internal_id
 
+            LOG.info(f"Processing {microbial_sample_obj}")
+
             if not microbial_sample_obj.organism.name == "other":
                 LOG.debug(
-                    f"skipping sample with organism: {microbial_sample_obj.organism.name}")
+                    f"Skipping sample with organism: {microbial_sample_obj.organism.name}")
                 continue
 
             try:
@@ -225,7 +227,7 @@ class TransferLims(object):
 
             timestamp = str(datetime.datetime.now())[:-10]
             new_comment = (f"{timestamp}: Organism changed from other to"
-                           f" {lims_other_organism}/{signature}")
+                           f" {lims_other_organism}/{signature} ")
             microbial_sample_obj.comment = new_comment + (microbial_sample_obj.comment or "")
             microbial_sample_obj.organism = organism_other
             self.status.commit()
