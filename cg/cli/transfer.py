@@ -74,3 +74,17 @@ def microbials(context, status):
     lims_api = lims_app.LimsAPI(context.obj)
     transfer_api = transfer_app.TransferLims(context.obj["db"], lims_api)
     transfer_api.transfer_microbial_samples(transfer_app.MicrobialState[status.upper()])
+
+
+@transfer.command()
+@click.option(
+    "-s", "--signature", help="User signature")
+@click.pass_context
+def transfer_microbial_other_organisms(context, signature):
+    """
+    Update microbial samples with other
+    from LIMS.
+    """
+    lims_api = lims_app.LimsAPI(context.obj)
+    transfer_api = transfer_app.TransferLims(context.obj["db"], lims_api)
+    transfer_api.transfer_microbial_other_organisms(signature=signature)

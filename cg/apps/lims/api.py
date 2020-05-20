@@ -48,6 +48,18 @@ class LimsAPI(Lims, OrderHandler):
         data = self._export_sample(lims_sample)
         return data
 
+    def get_sample_value_from_prop(
+        self, lims_id: str, prop: str
+    ):
+        """Get information about a sample."""
+        lims_sample = Sample(self, id=lims_id)
+
+        if not PROP2UDF.get(prop):
+            raise LimsDataError(
+                f"Unknown how to get {prop} in LIMS since it is not defined in" f" {PROP2UDF}"
+            )
+        return lims_sample.udf[PROP2UDF[prop]]
+
     def samples_in_pools(self, pool_name, projectname):
         return self.get_samples(udf={"pool name": str(pool_name)}, projectname=projectname)
 

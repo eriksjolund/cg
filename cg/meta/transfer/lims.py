@@ -1,3 +1,4 @@
+import datetime
 from enum import Enum
 import logging
 
@@ -70,7 +71,7 @@ class TransferLims(object):
         return self.status.samples_not_delivered()
 
     def transfer_samples(
-        self, status_type: SampleState, include: str = "unset", sample_id: str = None
+            self, status_type: SampleState, include: str = "unset", sample_id: str = None
     ):
         """Transfer information about samples."""
 
@@ -183,3 +184,44 @@ class TransferLims(object):
 
     def _get_all_relevant_samples(self):
         return self.status.samples_not_downsampled()
+
+    def transfer_microbial_other_organisms(self, signature: str):
+        """Transfer information about microbial samples."""
+
+        microbial_samples = self.status.microbial_samples()
+
+        if microbial_samples is None:
+            LOG.info(f"No microbial samples found")
+            return
+        else:
+            LOG.info(f"Processing {microbial_samples.count()} microbial samples")
+
+        for microbial_sample_obj in microbial_samples:
+            internal_id = microbial_sample_obj.internal_id
+
+            if not microbial_samples.organism.name == "other":
+                LOG.debug(
+                    f"skipping sample with organism: {microbial_samples.organism.name}")
+                continue
+
+            lims_other_organism = self.lims.get_sample_value_from_prop(
+                microbial_sample_obj.internal_id, "organism_other")
+
+            organism_other = self.status.organism(lims_other_organism)
+
+            if not organism_other:
+                organism_other = self.status.add_organism(
+                    internal_id=lims_other_organism,
+                    name=lims_other_organism,
+                    reference_genome=microbial_sample_obj.reference_genome,
+                )
+                self.status.add_commit(organism_other)
+
+            timestamp = str(datetime.datetime.now())[:-10]
+            new_comment = (f"{timestamp}: Organism changed from other to"
+                           f" {lims_other_organism} by {signature}")
+            microbial_sample_obj.comment = new_comment + (microbial_sample_obj.comment or "")
+            microbial_sample_obj.organism = organism_other
+            self.status.commit()
+
+            LOG.info("%s: %s", internal_id, new_comment)
