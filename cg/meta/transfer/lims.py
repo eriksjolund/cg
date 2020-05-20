@@ -200,8 +200,6 @@ class TransferLims(object):
         for microbial_sample_obj in microbial_samples:
             internal_id = microbial_sample_obj.internal_id
 
-            LOG.info(f"Processing {microbial_sample_obj}")
-
             if not microbial_sample_obj.organism.name == "other":
                 LOG.debug(
                     f"Skipping sample with organism: {microbial_sample_obj.organism.name}")
@@ -212,7 +210,7 @@ class TransferLims(object):
                     internal_id, "organism_other")
             except requests.exceptions.HTTPError as error:
                 if "404: Sample not found: " in error.__str__():
-                    LOG.warning("Could not find sample in LIMS")
+                    LOG.warning("%s: Could not find sample in LIMS", internal_id)
                     continue
 
             organism_other = self.status.organism(lims_other_organism)
@@ -226,8 +224,8 @@ class TransferLims(object):
                 self.status.add_commit(organism_other)
 
             timestamp = str(datetime.datetime.now())[:-10]
-            new_comment = (f"{timestamp}: Organism changed from other to"
-                           f" {lims_other_organism}/{signature} ")
+            new_comment = (f"{timestamp}: Organism changed from 'other' to"
+                           f" '{lims_other_organism}'/{signature} ")
             microbial_sample_obj.comment = new_comment + (microbial_sample_obj.comment or "")
             microbial_sample_obj.organism = organism_other
             self.status.commit()
