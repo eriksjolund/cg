@@ -204,7 +204,7 @@ class TransferLims(object):
 
             if not microbial_sample_obj.organism.name == "other":
                 LOG.debug(
-                    f"Skipping sample with organism: {microbial_sample_obj.organism.name}")
+                    f"{internal_id} Skipping sample with organism: {microbial_sample_obj.organism.name}")
                 continue
 
             try:
@@ -218,6 +218,12 @@ class TransferLims(object):
                 if "Other species" in error.__str__():
                     LOG.warning("%s: Could not 'Other species' on sample in LIMS", internal_id)
                     continue
+
+            if lims_other_organism == 'None':
+                LOG.debug(
+                    f"{internal_id} Skipping sample with LIMS 'Other species':"
+                    f" {lims_other_organism}")
+                continue
 
             organism_other = self.status.organism(lims_other_organism)
 
