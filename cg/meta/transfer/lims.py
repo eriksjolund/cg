@@ -219,6 +219,8 @@ class TransferLims(object):
                     LOG.warning("%s: Could not 'Other species' on sample in LIMS", internal_id)
                     continue
 
+            lims_other_organism = lims_other_organism[:31]  # 32 chars in status-db
+
             if lims_other_organism == 'None':
                 LOG.debug(
                     f"{internal_id} Skipping sample with LIMS 'Other species':"
